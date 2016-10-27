@@ -464,7 +464,7 @@ public class VentanaAlmaceneros extends JFrame {
 					else{
 						id = Long.parseLong(getTbEmpaquetadoPedido()
 								.getValueAt(getTbEmpaquetadoPedido().getSelectedRow(), 0).toString());
-						getPnComprobarReferencias().setVisible(true);
+						getPnIntroducirReferencia().setVisible(true);
 					}
 				}
 			});
