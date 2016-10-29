@@ -8,7 +8,7 @@ import org.sql2o.Connection;
 import org.sql2o.Query;
 import org.sql2o.Sql2o;
 
-import com.myshop.model.product.OrderItem;
+import com.myshop.model.order.OrderItem;
 import com.myshop.warehouse.controller.WorkingPlanController;
 
 /**

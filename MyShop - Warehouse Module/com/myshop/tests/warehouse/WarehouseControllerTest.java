@@ -2,7 +2,7 @@ package com.myshop.tests.warehouse;
 
 import org.junit.Test;
 
-import com.myshop.model.people.WarehouseKeeper;
+import com.myshop.model.warehouseKeeper.WarehouseKeeper;
 import com.myshop.warehouse.controller.WarehouseKeeperController;
 
 public class WarehouseControllerTest {

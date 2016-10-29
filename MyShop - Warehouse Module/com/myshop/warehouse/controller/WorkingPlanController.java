@@ -1,7 +1,7 @@
 package com.myshop.warehouse.controller;
 
-import com.myshop.model.people.WarehouseKeeper;
-import com.myshop.model.product.OrderItem;
+import com.myshop.model.order.OrderItem;
+import com.myshop.model.warehouseKeeper.WarehouseKeeper;
 import com.myshop.model.workingPlan.WorkingPlan;
 import com.myshop.model.workingPlan.WorkingPlanItem;
 
