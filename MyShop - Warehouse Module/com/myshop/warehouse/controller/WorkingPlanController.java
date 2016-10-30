@@ -1,5 +1,7 @@
 package com.myshop.warehouse.controller;
 
+import java.util.List;
+
 import com.myshop.model.order.OrderItem;
 import com.myshop.model.warehouseKeeper.WarehouseKeeper;
 import com.myshop.model.workingPlan.WorkingPlan;
@@ -10,7 +12,7 @@ public class WorkingPlanController {
 	private WorkingPlan wp;
 	
 	public WorkingPlanController() {
-		wp = new WorkingPlan();
+		wp = new WorkingPlan(-1, null, null);
 	}
 	
 	public WorkingPlanController(WorkingPlan wp) {
@@ -20,7 +22,20 @@ public class WorkingPlanController {
 	/**
 	 * @param orderItem item to add to the wpc.
 	 */
-	public void addItem(OrderItem orderItem) { this.wp.getItems().add(orderItem); }
+	public WorkingPlanController addItem(OrderItem orderItem) { 
+		this.wp.getItems().add(new WorkingPlanItem(orderItem, false)); 
+		return this;
+	}
+	
+	/**
+	 * @param items items to be added.
+	 */
+	public WorkingPlanController addAll(List<OrderItem> items) {
+		for(OrderItem oi : items) {
+			addItem(oi);
+		}
+		return this;
+	}
 	
 	/**
 	 * @return the number of items in the list.
@@ -43,6 +58,10 @@ public class WorkingPlanController {
 		wk.setID(wk.getID());
 		wk.setName(wk.getName());
 		wk.setSurname(wk.getSurname());
+	}
+	
+	public List<WorkingPlanItem> getItems() {
+		return this.wp.getItems();
 	}
 
 }
