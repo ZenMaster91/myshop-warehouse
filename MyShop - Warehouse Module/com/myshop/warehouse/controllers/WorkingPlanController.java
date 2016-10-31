@@ -1,4 +1,4 @@
-package com.myshop.warehouse.controller;
+package com.myshop.warehouse.controllers;
 
 import java.util.List;
 
@@ -20,6 +20,18 @@ public class WorkingPlanController {
 	}
 	
 	/**
+	 * @return all the items in the working plan.
+	 */
+	public List<WorkingPlanItem> getItems() {
+		return this.wp.getItems();
+	}
+	
+	/**
+	 * @return the number of items in the list.
+	 */
+	public int getNumberOfItems() { return this.wp.getItems().size(); }
+	
+	/**
 	 * @param orderItem item to add to the wpc.
 	 */
 	public WorkingPlanController addItem(OrderItem orderItem) { 
@@ -38,9 +50,12 @@ public class WorkingPlanController {
 	}
 	
 	/**
-	 * @return the number of items in the list.
+	 * @param wk warehouse keeper.
 	 */
-	public int getNumberOfItems() { return this.wp.getItems().size(); }
+	public WorkingPlanController assignWareHouseKeeper(WarehouseKeeper wk) {
+		wp.setWarehouseKeeper(wk);
+		return this;
+	}
 	
 	/**
 	 * @return the total weight of the order.
@@ -52,16 +67,6 @@ public class WorkingPlanController {
 			weight += oi.getProduct().getWeight();
 		}
 		return weight;
-	}
-	
-	public void assignWareHouseKeeper(WarehouseKeeper wk) {
-		wk.setID(wk.getID());
-		wk.setName(wk.getName());
-		wk.setSurname(wk.getSurname());
-	}
-	
-	public List<WorkingPlanItem> getItems() {
-		return this.wp.getItems();
 	}
 
 }

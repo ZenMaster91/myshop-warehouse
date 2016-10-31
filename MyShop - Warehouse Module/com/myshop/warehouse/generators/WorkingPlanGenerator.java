@@ -1,7 +1,6 @@
-package com.myshop.warehouse;
+package com.myshop.warehouse.generators;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.sql2o.Connection;
@@ -10,19 +9,19 @@ import org.sql2o.Sql2o;
 
 import com.myshop.model.order.Order;
 import com.myshop.model.order.OrderItem;
-import com.myshop.model.product.Product;
 import com.myshop.model.workingPlan.WorkingPlanItem;
-import com.myshop.warehouse.controller.OrderController;
-import com.myshop.warehouse.controller.WorkingPlanController;
+import com.myshop.warehouse.controllers.OrderController;
+import com.myshop.warehouse.controllers.WorkingPlanController;
+import com.myshop.warehouse.util.GetLastIndexCreated;
 
 /**
  * WorkingPlanGenerator generates working plans acording to a max load.
  * 
- * @version 2610161700
+ * @version 31102238
  * @author Guillermo Facundo Colunga
  *
  */
-public class WorkingPlanGenerator {
+public class WorkingPlanGenerator implements Generator {
 
 	public final static int MAX_WP_LOAD = 10;
 
@@ -51,6 +50,7 @@ public class WorkingPlanGenerator {
 	 * 
 	 * @return the necessary working plans that fits a maximum load.
 	 */
+	@Override
 	public WorkingPlanGenerator generate() {
 		// We create a default wpc pointer to manage different objects inside
 		// the loop.
@@ -59,7 +59,6 @@ public class WorkingPlanGenerator {
 		// We will work over this auxiliary pointer that ponits to all the not
 		// assigned items.
 		List<Order> aux = new OrderController().getNotAssigned();
-
 		for (Order o : aux) {
 			if (new OrderController().getWeight(o) <= MAX_WP_LOAD) {
 				wpc = new WorkingPlanController().addAll(o.getProducts());
@@ -95,12 +94,12 @@ public class WorkingPlanGenerator {
 	/**
 	 * Sends the current status to the database.
 	 */
-	public void save() {
+	private void save() {
 		final String insertWorkingPlan = "INSERT INTO myshop.working_pan() VALUES ()";
 		final String insertWorkingPlanItem = "INSERT INTO myshop.working_plan_item (order_item_id, wp_id) VALUES (:item_id, :wp_id)";
 		Sql2o sql2o = new Sql2o("urlToDatbase");
-		Query query;
-		Connection con;
+		Query query = null;
+		Connection con = null;
 
 		for (WorkingPlanController wpc : workingPlans) {
 

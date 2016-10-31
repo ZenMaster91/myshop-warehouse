@@ -1,4 +1,4 @@
-package com.myshop.warehouse.controller;
+package com.myshop.warehouse.controllers;
 
 import java.util.List;
 

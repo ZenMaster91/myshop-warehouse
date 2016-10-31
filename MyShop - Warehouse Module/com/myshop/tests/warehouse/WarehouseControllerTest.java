@@ -3,7 +3,7 @@ package com.myshop.tests.warehouse;
 import org.junit.Test;
 
 import com.myshop.model.warehouseKeeper.WarehouseKeeper;
-import com.myshop.warehouse.controller.WarehouseKeeperController;
+import com.myshop.warehouse.controllers.WarehouseKeeperController;
 
 public class WarehouseControllerTest {
 
