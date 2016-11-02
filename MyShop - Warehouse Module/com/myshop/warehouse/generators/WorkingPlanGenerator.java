@@ -1,24 +1,27 @@
-package com.myshop.warehouse;
+package com.myshop.warehouse.generators;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.sql2o.Connection;
 import org.sql2o.Query;
 import org.sql2o.Sql2o;
 
+import com.myshop.model.order.Order;
 import com.myshop.model.order.OrderItem;
-import com.myshop.warehouse.controller.WorkingPlanController;
+import com.myshop.model.workingPlan.WorkingPlanItem;
+import com.myshop.warehouse.controllers.OrderController;
+import com.myshop.warehouse.controllers.WorkingPlanController;
+import com.myshop.warehouse.util.GetLastIndexCreated;
 
 /**
  * WorkingPlanGenerator generates working plans acording to a max load.
  * 
- * @version 2610161700
+ * @version 31102238
  * @author Guillermo Facundo Colunga
  *
  */
-public class WorkingPlanGenerator {
+public class WorkingPlanGenerator implements Generator {
 
 	public final static int MAX_WP_LOAD = 10;
 
@@ -47,6 +50,7 @@ public class WorkingPlanGenerator {
 	 * 
 	 * @return the necessary working plans that fits a maximum load.
 	 */
+	@Override
 	public WorkingPlanGenerator generate() {
 		// We create a default wpc pointer to manage different objects inside
 		// the loop.
@@ -54,34 +58,34 @@ public class WorkingPlanGenerator {
 
 		// We will work over this auxiliary pointer that ponits to all the not
 		// assigned items.
-		List<OrderItem> aux = new GetNotAssignedOrderItems().getAll();
-		// Meanwhile there are still elements unassigned...
-		while (aux.size() > 0) {
-			// Each iteration represents a new WorkingPlanController.
-			wpc = new WorkingPlanController();
-			// The for each item not assigned yet we try to.
-			for (OrderItem oi : aux) {
-				// Special case if there's no items in the list and we find one
-				// that is heavier than the max_load per working plan.
-				if (wpc.getNumberOfItems() < 1 && oi.getProduct().getWeight() > MAX_WP_LOAD) {
-					wpc.addItem(oi); // Add it to the working plan.
-					aux.remove(oi); // Remove it from the remaining items list.
-					workingPlans.add(wpc);
-					break;
-				} else {
-					// Then usual case that is try to add the item to the
-					// working plan if the current total weight plus the item
-					// weight is no grater than the max load.
-					if (wpc.getTotalWeight() + oi.getWeight() <= MAX_WP_LOAD) {
+		List<Order> aux = new OrderController().getNotAssigned();
+		for (Order o : aux) {
+			if (new OrderController().getWeight(o) <= MAX_WP_LOAD) {
+				wpc = new WorkingPlanController().addAll(o.getProducts());
+			} else {
+				wpc = new WorkingPlanController();
+
+				for (OrderItem oi : o.getProducts()) {
+					// Special case if there's no items in the list and we find
+					// one
+					// that is heavier than the max_load per working plan.
+					if (wpc.getNumberOfItems() < 1 && oi.getProduct().getWeight() > MAX_WP_LOAD) {
 						wpc.addItem(oi); // Add it to the working plan.
-						aux.remove(oi); // Remove it from the remaining items
-										// list.
+						workingPlans.add(wpc);
+						wpc = new WorkingPlanController();
+					} else {
+						// Then usual case that is try to add the item to the
+						// working plan if the current total weight plus the
+						// item
+						// weight is no grater than the max load.
+						if (wpc.getTotalWeight() + oi.getProduct().getWeight() <= MAX_WP_LOAD) {
+							wpc.addItem(oi); // Add it to the working plan.
+						} else {
+							wpc = new WorkingPlanController().addItem(oi);
+						}
 					}
 				}
 			}
-			// At the end of each iteration we add the new generated working
-			// plan to the list of working plans.
-			workingPlans.add(wpc);
 		}
 		save();
 		return this;
@@ -90,27 +94,28 @@ public class WorkingPlanGenerator {
 	/**
 	 * Sends the current status to the database.
 	 */
-	public void save() {
+	private void save() {
 		final String insertWorkingPlan = "INSERT INTO myshop.working_pan() VALUES ()";
 		final String insertWorkingPlanItem = "INSERT INTO myshop.working_plan_item (order_item_id, wp_id) VALUES (:item_id, :wp_id)";
 		Sql2o sql2o = new Sql2o("urlToDatbase");
-		Query query;
-		Connection con;
-		
+		Query query = null;
+		Connection con = null;
+
 		for (WorkingPlanController wpc : workingPlans) {
 
-			try (con = sql2o.open()) {
-				con.createQuery(insertWorkingPlan).executeUpdate();
-			}
+			con = sql2o.open();
+			con.createQuery(insertWorkingPlan).executeUpdate();
+
 			int index = new GetLastIndexCreated().get();
 
-			try (con = sql2o.beginTransaction()) {
-				query = con.createQuery(insertWorkingPlanItem);
+			con = sql2o.beginTransaction();
+			query = con.createQuery(insertWorkingPlanItem);
 
-				for (OrderItem oi : wpc.getItems()) {
-					query.addParameter("item_id", oi.getProductID()).addParameter("wp_id", index).addToBatch();
-				}
+			for (WorkingPlanItem wpi : wpc.getItems()) {
+				OrderItem oi = wpi.getOrderItem();
+				query.addParameter("item_id", oi.getProductID()).addParameter("wp_id", index).addToBatch();
 			}
+
 		}
 		// Executes entire batch. Speeds up the performance.
 		query.executeBatch();

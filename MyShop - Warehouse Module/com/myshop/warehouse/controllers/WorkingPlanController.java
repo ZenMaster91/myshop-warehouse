@@ -1,4 +1,6 @@
-package com.myshop.warehouse.controller;
+package com.myshop.warehouse.controllers;
+
+import java.util.List;
 
 import com.myshop.model.order.OrderItem;
 import com.myshop.model.warehouseKeeper.WarehouseKeeper;
@@ -10,7 +12,7 @@ public class WorkingPlanController {
 	private WorkingPlan wp;
 	
 	public WorkingPlanController() {
-		wp = new WorkingPlan();
+		wp = new WorkingPlan(-1, null, null);
 	}
 	
 	public WorkingPlanController(WorkingPlan wp) {
@@ -18,14 +20,42 @@ public class WorkingPlanController {
 	}
 	
 	/**
-	 * @param orderItem item to add to the wpc.
+	 * @return all the items in the working plan.
 	 */
-	public void addItem(OrderItem orderItem) { this.wp.getItems().add(orderItem); }
+	public List<WorkingPlanItem> getItems() {
+		return this.wp.getItems();
+	}
 	
 	/**
 	 * @return the number of items in the list.
 	 */
 	public int getNumberOfItems() { return this.wp.getItems().size(); }
+	
+	/**
+	 * @param orderItem item to add to the wpc.
+	 */
+	public WorkingPlanController addItem(OrderItem orderItem) { 
+		this.wp.getItems().add(new WorkingPlanItem(orderItem, false)); 
+		return this;
+	}
+	
+	/**
+	 * @param items items to be added.
+	 */
+	public WorkingPlanController addAll(List<OrderItem> items) {
+		for(OrderItem oi : items) {
+			addItem(oi);
+		}
+		return this;
+	}
+	
+	/**
+	 * @param wk warehouse keeper.
+	 */
+	public WorkingPlanController assignWareHouseKeeper(WarehouseKeeper wk) {
+		wp.setWarehouseKeeper(wk);
+		return this;
+	}
 	
 	/**
 	 * @return the total weight of the order.
@@ -37,12 +67,6 @@ public class WorkingPlanController {
 			weight += oi.getProduct().getWeight();
 		}
 		return weight;
-	}
-	
-	public void assignWareHouseKeeper(WarehouseKeeper wk) {
-		wk.setID(wk.getID());
-		wk.setName(wk.getName());
-		wk.setSurname(wk.getSurname());
 	}
 
 }
