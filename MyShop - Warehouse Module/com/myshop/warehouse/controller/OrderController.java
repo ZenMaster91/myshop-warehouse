@@ -70,6 +70,7 @@ public class OrderController{
 		try (Connection con = sql2o.open()) {
 			 map = con.createQuery(complexSql).executeAndFetchTable().asList();
 		 }
+		
 		List<OrderItem> orders = new ArrayList<OrderItem>();
 		for(Map<String,Object> m : map){
 			OrderItem o = new OrderItem();
