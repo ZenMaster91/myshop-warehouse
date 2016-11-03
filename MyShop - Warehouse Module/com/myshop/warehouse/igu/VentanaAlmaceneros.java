@@ -25,6 +25,7 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.FlowLayout;
@@ -56,7 +57,7 @@ public class VentanaAlmaceneros extends JFrame {
 	private DefaultTableModel modeloTablaRecogida;
 	private DefaultTableModel modeloTablaEmpaquetado;
 	private DefaultTableModel modeloTablaRecogidaProductos;
-	private DefaultTableModel modeloTablaEmpaquetadoPedido;
+	//TODO private DefaultTableModel modeloTablaEmpaquetadoPedido;
 	private JPanel pnRecogidaEmpaquetado;
 	private JPanel pnPedido;
 	private JLabel lblPedido;
@@ -143,7 +144,7 @@ public class VentanaAlmaceneros extends JFrame {
 			btnAceptar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					//TODO
-					WarehouseKeeper almacenero = new WarehouseKeeperController().getWarehouseKeeperbyNameSur(getTxLogin().getText());
+					WarehouseKeeper almacenero = new WarehouseKeeperController().getWarehouseKeeperbyId(getTxLogin().getText());
 
 					if(almacenero != null){
 						mostrarVentanaOpciones();
@@ -177,7 +178,7 @@ public class VentanaAlmaceneros extends JFrame {
 	private JLabel getLblRecogida() {
 		if (lblRecogida == null) {
 			lblRecogida = new JLabel("Recogida");
-			lblRecogida.setIcon(new ImageIcon(VentanaAlmaceneros.class.getResource("/com/myshop/warehouse/files/recogida.png")));
+			lblRecogida.setIcon(new ImageIcon(VentanaAlmaceneros.class.getResource("/com/myshop/warehouse/igu/img/recogida.png")));
 			lblRecogida.setHorizontalAlignment(SwingConstants.CENTER);
 			lblRecogida.setBounds(31, 64, 123, 132);
 		}
@@ -186,7 +187,7 @@ public class VentanaAlmaceneros extends JFrame {
 	private JLabel getLblEmpaquetado() {
 		if (lblEmpaquetado == null) {
 			lblEmpaquetado = new JLabel("Empaquetado");
-			lblEmpaquetado.setIcon(new ImageIcon(VentanaAlmaceneros.class.getResource("/com/myshop/warehouse/files/empaquetado.png")));
+			lblEmpaquetado.setIcon(new ImageIcon(VentanaAlmaceneros.class.getResource("/com/myshop/warehouse/igu/img/empaquetado.png")));
 			lblEmpaquetado.setHorizontalAlignment(SwingConstants.CENTER);
 			lblEmpaquetado.setBounds(164, 64, 138, 132);
 		}
@@ -197,7 +198,11 @@ public class VentanaAlmaceneros extends JFrame {
 			btnRecogida = new JButton("Recogida");
 			btnRecogida.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					mostrarVentanaOpcionesRecogida();
+					try {
+						mostrarVentanaOpcionesRecogida();
+					} catch (ClassNotFoundException e1) {
+						e1.printStackTrace();
+					}
 				}
 			});
 			btnRecogida.setBounds(31, 236, 102, 23);
@@ -205,7 +210,8 @@ public class VentanaAlmaceneros extends JFrame {
 		return btnRecogida;
 	}
 	
-	private void mostrarVentanaOpcionesRecogida(){
+	private void mostrarVentanaOpcionesRecogida() throws ClassNotFoundException{
+		rellenarPedidosARecoger();
 		getPnOpcionesAlmacenero().setVisible(false);
 		getPnOpciones().setVisible(true);
 		getScpEmpaquetado().setVisible(false);
@@ -213,7 +219,8 @@ public class VentanaAlmaceneros extends JFrame {
 		getPnVolverOpciones().setVisible(true);
 	}
 	
-	private void mostrarVentanaOpcionesEmpaquetado(){
+	private void mostrarVentanaOpcionesEmpaquetado() throws ClassNotFoundException{
+		rellenarPedidosAEmpaquetar();
 		getPnOpcionesAlmacenero().setVisible(false);
 		getPnOpciones().setVisible(true);
 		getScpRecogida().setVisible(false);
@@ -226,7 +233,11 @@ public class VentanaAlmaceneros extends JFrame {
 			btnEmpaquetado = new JButton("Empaquetado");
 			btnEmpaquetado.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					mostrarVentanaOpcionesEmpaquetado();
+					try {
+						mostrarVentanaOpcionesEmpaquetado();
+					} catch (ClassNotFoundException e1) {
+						e1.printStackTrace();
+					}
 				}
 			});
 			btnEmpaquetado.setBounds(176, 236, 102, 23);
@@ -299,14 +310,14 @@ public class VentanaAlmaceneros extends JFrame {
 					Long id = Long.parseLong(tbRecogida
 							.getValueAt(seleccionada, 0).toString());
 					
-					//TODO Order o = new GetOrders().getOrderByID(id);
-					WarehouseKeeper almacenero = new WarehouseKeeperController().
-							getWarehouseKeeperbyNameSur(getTxLogin().getText());
-					//getTxPedido().setText(o.getID()+"");
+					Order o = new OrderController().getOrderById(id+"");
+					//WarehouseKeeper almacenero = new WarehouseKeeperController().
+					//		getWarehouseKeeperbyId(getTxLogin().getText());
+					getTxPedido().setText(o.getID()+"");
 					//TODO
 					//crear OT con el almacenero que soy ("almacenero") y el pedido seleccionado
 					//muestroPantalla de recogida de productos del pedido elegido
-					mostrarVentanaRecogiendo();
+					mostrarVentanaRecogiendo(o);
 				}
 			});
 		}
@@ -343,22 +354,27 @@ public class VentanaAlmaceneros extends JFrame {
 					getTxPedido().setText(o.getID()+"");
 					//cambiar estado del pedido a empaquetando
 					//muestroPantalla de empaquetado de productos del pedido elegido
-					mostrarVentanaEmpaquetando();
+					mostrarVentanaEmpaquetando(o);
 				}
 			});
 		}
 		return tbEmpaquetado;
 	}
 	
-	private void mostrarVentanaEmpaquetando(){
+	private void mostrarVentanaEmpaquetando(Order o){
+		rellenarProductosPedido(o);
 		getPnRecogidaEmpaquetado().setVisible(true);
 		getScpRecogidaProductos().setVisible(false);
+		getScpEmpaquetado().setVisible(false);
+		getPnOpciones().setVisible(false);
 		getPnAuxiliarEmpaquetadoPedido().setVisible(true);
 	}
 	//TODO
-	private void mostrarVentanaRecogiendo(){
+	private void mostrarVentanaRecogiendo(Order o){
+		rellenarProductosPedido(o);
 		getPnRecogidaEmpaquetado().setVisible(true);
 		getPnAuxiliarEmpaquetadoPedido().setVisible(false);
+		getPnOpciones().setVisible(false);
 		getScpRecogidaProductos().setVisible(true);
 	}
 	
@@ -391,6 +407,7 @@ public class VentanaAlmaceneros extends JFrame {
 	private JTextField getTxPedido() {
 		if (txPedido == null) {
 			txPedido = new JTextField();
+			txPedido.setEditable(false);
 			txPedido.setColumns(10);
 		}
 		return txPedido;
@@ -563,10 +580,17 @@ public class VentanaAlmaceneros extends JFrame {
 	
 	
 	private void rellenarPedidosARecoger() throws ClassNotFoundException{
-
+		for(int i=modeloTablaRecogida.getRowCount()-1;i>=0;i--){
+			modeloTablaRecogida.removeRow(i);
+		}
 		Object[] nuevaFila = new Object[3];
 		
-		List<Order> pedidos = new OrderController().getOrderByStatus("PENDIENTE");
+		//TODO
+		List<Order> pedidos = new OrderController().getOrderByStatus("preparando");
+		/*List<Order> pedidosIncidente = new OrderController().getOrderByStatus("INCIDENTE");
+		for(Order o : pedidosIncidente){
+			pedidos.add(o);
+		}*/
 
 		for (Order c : pedidos) {
 			nuevaFila[0] = c.getID();
@@ -581,10 +605,12 @@ public class VentanaAlmaceneros extends JFrame {
 	}
 	
 	private void rellenarPedidosAEmpaquetar() throws ClassNotFoundException{
-
+		for(int i=modeloTablaEmpaquetado.getRowCount()-1;i>=0;i--){
+			modeloTablaEmpaquetado.removeRow(i);
+		}
 		Object[] nuevaFila = new Object[3];
 		
-		List<Order> pedidos = new OrderController().getOrderByStatus("SOLICITADO");
+		List<Order> pedidos = new OrderController().getOrderByStatus("pendiente_empaquetado");
 
 		for (Order c : pedidos) {
 			nuevaFila[0] = c.getID();
@@ -598,11 +624,15 @@ public class VentanaAlmaceneros extends JFrame {
 		}
 	}
 	
-	private void rellenarProductosPedido(){
+	private void rellenarProductosPedido(Order o){
+		
+		for(int i=modeloTablaRecogidaProductos.getRowCount()-1;i>=0;i--){
+			modeloTablaRecogidaProductos.removeRow(i);
+		}
 		Object[] nuevaFila = new Object[7];
 
 		List<OrderItem> productos = new OrderController().
-				getAllByOrderId(getTxPedido().getText());
+				getAllByOrderId(o.getID()+"");
 
 		for (OrderItem c : productos) {
 			nuevaFila[0] = c.getID();
