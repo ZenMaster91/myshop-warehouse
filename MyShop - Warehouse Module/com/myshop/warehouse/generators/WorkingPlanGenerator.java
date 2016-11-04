@@ -1,5 +1,6 @@
 package com.myshop.warehouse.generators;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +59,13 @@ public class WorkingPlanGenerator implements Generator {
 
 		// We will work over this auxiliary pointer that ponits to all the not
 		// assigned items.
-		List<Order> aux = new OrderController().getNotAssigned();
+		List<Order> aux = null;
+		try {
+			aux = new OrderController().getNotAssigned();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		for (Order o : aux) {
 			if (new OrderController().getWeight(o) <= MAX_WP_LOAD) {
 				wpc = new WorkingPlanController().addAll(o.getProducts());
