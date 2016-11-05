@@ -16,7 +16,7 @@ public class WarehouseKeeperController {
 		}
 	}
 
-	public List<WarehouseKeeper> getWarehouseKeeperbyNameSur(String id) {
+	public List<WarehouseKeeper> getByID(String id) {
 		String complexSql = "SELECT * FROM myshop.warehouse_keeper as w_k WHERE w_k.wk_id = :id";
 		try (Connection con = new DefaultSql2o().open()) {
 			return con.createQuery(complexSql).addParameter("id", id).addColumnMapping("wk_id", "ID")
