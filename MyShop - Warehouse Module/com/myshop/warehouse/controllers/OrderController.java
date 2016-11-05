@@ -63,9 +63,10 @@ public class OrderController {
 
 			Category c = new Category((String) m.get("category"));
 			ProductLocation pl = new ProductLocation((int) m.get("corridor"), (int) m.get("position"),
-					(int) m.get("height"), Side.LEFT);
+					(int) m.get("height"), Side.valueOf(((String) m.get("side")).toUpperCase()));
 			Product p = new Product((int) m.get("product_id"), (int) m.get("stock"), (String) m.get("name"),
-					(String) m.get("description"), (double) m.get("weight"), (double) m.get("price"), c, c, pl, (double) m.get("company_price"));
+					(String) m.get("description"), (double) m.get("weight"), (double) m.get("price"), c, c, pl,
+					(double) m.get("company_price"));
 			OrderItem oi = new OrderItem(-1, (int) m.get("quantity"), p, null, null);
 			o.getProducts().add(oi);
 			last = (int) m.get("order_id");

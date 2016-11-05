@@ -1,5 +1,6 @@
 package com.myshop.warehouse.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.myshop.model.order.OrderItem;
@@ -10,9 +11,10 @@ import com.myshop.model.workingPlan.WorkingPlanItem;
 public class WorkingPlanController {
 	
 	private WorkingPlan wp;
+	private boolean splitted;
 	
 	public WorkingPlanController() {
-		wp = new WorkingPlan(-1, null, null);
+		wp = new WorkingPlan(-1, null, new ArrayList<WorkingPlanItem>());
 	}
 	
 	public WorkingPlanController(WorkingPlan wp) {
@@ -67,6 +69,20 @@ public class WorkingPlanController {
 			weight += oi.getProduct().getWeight();
 		}
 		return weight;
+	}
+
+	/**
+	 * @return the splitted
+	 */
+	public boolean isSplitted() {
+		return splitted;
+	}
+
+	/**
+	 * @param splitted the splitted to set
+	 */
+	public void setSplitted(boolean splitted) {
+		this.splitted = splitted;
 	}
 
 }
