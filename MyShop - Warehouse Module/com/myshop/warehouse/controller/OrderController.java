@@ -47,7 +47,11 @@ public class OrderController{
 
 	
 	public List<Order> getOrderByStatus(String status){
-		String complexSql = "SELECT o.*FROM myshop.order o, myshop.status s where o.status_id=s.status_id and s.name= :status";
+		String complexSql = "SELECT o.*,i.*, p.* "
+				+ "FROM myshop.order_item i , myshop.order o , myshop.status s, "
+				+ "myshop.full_products p where i.product_id=p.product_id and "
+				+ "o.order_id=i.order_id and "
+				+ "o.status_id=s.status_id and s.name= :status";
 		List<Map<String,Object>> map;
 		List<Order> orders = new ArrayList<Order>();
 		List<OrderItem> lista;
@@ -57,11 +61,38 @@ public class OrderController{
 		 for(Map<String,Object> m : map){
 			 Order o = new Order();
 			 o.setID((int)m.get("order_id"));
-			 o.setProducts(getAllByOrderId(o.getID()+""));
+			 lista = new ArrayList<OrderItem>();
+			 for(Map<String,Object> m2 : map){
+				 if((int)m.get("order_id") == (int)m2.get("order_id")){
+					 OrderItem i = new OrderItem();
+					 i.setID((int) m2.get("order_item_id"));
+					 i.setQuantity((int) m2.get("quantity"));
+					 Product p = new Product();
+					 p.setCorridor((int) m2.get("corridor"));
+					 p.setHeight((int) m2.get("height"));
+					 p.setPosition((int) m2.get("position"));
+					 p.setPrice((double) m2.get("price"));
+					 p.setSide((String) m2.get("side"));
+					 lista.add(i);
+				 }
+			 }
+			 o.setProducts(lista);
 			 o.setDateReceived((Date) m.get("date_received"));
-			 orders.add(o);
+			 
+			 if(!contieneOrder(orders,o)){
+				 orders.add(o);
+			 }
 		 }
 		 return orders;
+	}
+	
+	private boolean contieneOrder(List<Order> orders, Order o){
+		for(Order or : orders){
+			 if(or.getID() == o.getID()){
+				 return true;
+			 }
+		 }
+		 return false;
 	}
 	
 	public List<OrderItem> getAllByOrderId(String id){
