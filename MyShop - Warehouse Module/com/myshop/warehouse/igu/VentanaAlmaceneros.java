@@ -150,7 +150,7 @@ public class VentanaAlmaceneros extends JFrame {
 			btnAceptar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					//TODO
-					WarehouseKeeper almacenero = new WarehouseKeeperController().getWarehouseKeeperbyId(getTxLogin().getText());
+					WarehouseKeeper almacenero = new WarehouseKeeperController().getByID(getTxLogin().getText()).get(0);
 
 					if(almacenero != null){
 						mostrarVentanaOpciones();
