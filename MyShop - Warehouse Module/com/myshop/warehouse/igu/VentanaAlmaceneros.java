@@ -8,6 +8,12 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
+import com.myshop.model.order.Order;
+import com.myshop.model.order.OrderItem;
+import com.myshop.model.warehouseKeeper.WarehouseKeeper;
+import com.myshop.warehouse.controller.OrderController;
+import com.myshop.warehouse.controller.WarehouseKeeperController;
+
 import java.awt.CardLayout;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
@@ -15,10 +21,16 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import java.awt.Font;
+import java.awt.TrayIcon.MessageType;
+
 import javax.swing.JButton;
+import javax.swing.JDialog;
+
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.FlowLayout;
 import javax.swing.JScrollPane;
@@ -30,8 +42,7 @@ public class VentanaAlmaceneros extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JPanel pnInicioAlmacenero;
-	private JTextField TxUsuario;
-	private JPasswordField psfPassword;
+	private JTextField TxLogin;
 	private JLabel lblInicio;
 	private JButton btnAceptar;
 	private JPanel pnOpcionesAlmacenero;
@@ -69,6 +80,8 @@ public class VentanaAlmaceneros extends JFrame {
 	private JLabel lblIntroducirReferenciaDel;
 	private JTextField txReferencia;
 	private Long id;
+	private JPanel pnAuxiliarRecogida;
+	private JButton btnGenerarIncidencia;
 
 	/**
 	 * Launch the application.
@@ -108,27 +121,19 @@ public class VentanaAlmaceneros extends JFrame {
 		if (pnInicioAlmacenero == null) {
 			pnInicioAlmacenero = new JPanel();
 			pnInicioAlmacenero.setLayout(null);
-			pnInicioAlmacenero.add(getTxUsuario());
-			pnInicioAlmacenero.add(getPsfPassword());
+			pnInicioAlmacenero.add(getTxLogin());
 			pnInicioAlmacenero.add(getLblInicio());
 			pnInicioAlmacenero.add(getBtnAceptar());
 		}
 		return pnInicioAlmacenero;
 	}
-	private JTextField getTxUsuario() {
-		if (TxUsuario == null) {
-			TxUsuario = new JTextField();
-			TxUsuario.setBounds(82, 136, 145, 31);
-			TxUsuario.setColumns(10);
+	private JTextField getTxLogin() {
+		if (TxLogin == null) {
+			TxLogin = new JTextField();
+			TxLogin.setBounds(82, 166, 145, 31);
+			TxLogin.setColumns(10);
 		}
-		return TxUsuario;
-	}
-	private JPasswordField getPsfPassword() {
-		if (psfPassword == null) {
-			psfPassword = new JPasswordField();
-			psfPassword.setBounds(82, 195, 145, 31);
-		}
-		return psfPassword;
+		return TxLogin;
 	}
 	private JLabel getLblInicio() {
 		if (lblInicio == null) {
@@ -145,11 +150,15 @@ public class VentanaAlmaceneros extends JFrame {
 			btnAceptar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					//TODO
-					//buscar almacenero en la base de datos con dicho usuario y password
-					//si el almacenero resultante no es null, muestra la siguiente ventana, y sino da un aviso
-					//if(almacenero != null){
+					WarehouseKeeper almacenero = new WarehouseKeeperController().getByID(getTxLogin().getText()).get(0);
+
+					if(almacenero != null){
 						mostrarVentanaOpciones();
-					//}
+					}
+					else{
+						JOptionPane.showMessageDialog(null, "Usuario no valido, vuelva a intentarlo",
+								"Inicio almacenero", JOptionPane.INFORMATION_MESSAGE);
+					}
 				}
 			});
 			btnAceptar.setBounds(108, 276, 89, 23);
@@ -157,11 +166,8 @@ public class VentanaAlmaceneros extends JFrame {
 		return btnAceptar;
 	}
 	
-	private void mostrarVentanaOpciones(){
-		getPnInicioAlmacenero().setVisible(false);
-		getPnOpcionesAlmacenero().setVisible(true);
-		getPnVolverOpciones().setVisible(false);
-	}
+	
+	
 	private JPanel getPnOpcionesAlmacenero() {
 		if (pnOpcionesAlmacenero == null) {
 			pnOpcionesAlmacenero = new JPanel();
@@ -176,7 +182,7 @@ public class VentanaAlmaceneros extends JFrame {
 	private JLabel getLblRecogida() {
 		if (lblRecogida == null) {
 			lblRecogida = new JLabel("Recogida");
-			lblRecogida.setIcon(new ImageIcon(VentanaAlmaceneros.class.getResource("/com/myshop/warehouse/files/recogida.png")));
+			lblRecogida.setIcon(new ImageIcon(VentanaAlmaceneros.class.getResource("/com/myshop/warehouse/igu/img/recogida.png")));
 			lblRecogida.setHorizontalAlignment(SwingConstants.CENTER);
 			lblRecogida.setBounds(31, 64, 123, 132);
 		}
@@ -185,7 +191,7 @@ public class VentanaAlmaceneros extends JFrame {
 	private JLabel getLblEmpaquetado() {
 		if (lblEmpaquetado == null) {
 			lblEmpaquetado = new JLabel("Empaquetado");
-			lblEmpaquetado.setIcon(new ImageIcon(VentanaAlmaceneros.class.getResource("/com/myshop/warehouse/files/empaquetado.png")));
+			lblEmpaquetado.setIcon(new ImageIcon(VentanaAlmaceneros.class.getResource("/com/myshop/warehouse/igu/img/empaquetado.png")));
 			lblEmpaquetado.setHorizontalAlignment(SwingConstants.CENTER);
 			lblEmpaquetado.setBounds(164, 64, 138, 132);
 		}
@@ -196,7 +202,11 @@ public class VentanaAlmaceneros extends JFrame {
 			btnRecogida = new JButton("Recogida");
 			btnRecogida.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					mostrarVentanaOpcionesRecogida();
+					try {
+						mostrarVentanaOpcionesRecogida();
+					} catch (ClassNotFoundException e1) {
+						e1.printStackTrace();
+					}
 				}
 			});
 			btnRecogida.setBounds(31, 236, 102, 23);
@@ -204,7 +214,31 @@ public class VentanaAlmaceneros extends JFrame {
 		return btnRecogida;
 	}
 	
-	private void mostrarVentanaOpcionesRecogida(){
+	private void mostrarVentanaOpciones(){
+		getPnInicioAlmacenero().setVisible(false);
+		getPnOpcionesAlmacenero().setVisible(true);
+		getPnVolverOpciones().setVisible(false);
+	}
+	
+	private void mostrarVentanaEmpaquetando(Order o){
+		rellenarProductosPedido(o);
+		getPnOpciones().setVisible(false);
+		getPnRecogidaEmpaquetado().setVisible(true);
+		getPnAuxiliarEmpaquetadoPedido().setVisible(true);
+		
+	}
+	//TODO
+	private void mostrarVentanaRecogiendo(Order o){
+		rellenarProductosPedido(o);
+		getPnOpciones().setVisible(false);
+		getPnRecogidaEmpaquetado().setVisible(true);
+		getScpRecogida().setVisible(false);
+		getScpRecogidaProductos().setVisible(true);
+		getTbRecogidaProductos().setVisible(true);
+	}
+	
+	private void mostrarVentanaOpcionesRecogida() throws ClassNotFoundException{
+		rellenarPedidosARecoger();
 		getPnOpcionesAlmacenero().setVisible(false);
 		getPnOpciones().setVisible(true);
 		getScpEmpaquetado().setVisible(false);
@@ -212,7 +246,8 @@ public class VentanaAlmaceneros extends JFrame {
 		getPnVolverOpciones().setVisible(true);
 	}
 	
-	private void mostrarVentanaOpcionesEmpaquetado(){
+	private void mostrarVentanaOpcionesEmpaquetado() throws ClassNotFoundException{
+		rellenarPedidosAEmpaquetar();
 		getPnOpcionesAlmacenero().setVisible(false);
 		getPnOpciones().setVisible(true);
 		getScpRecogida().setVisible(false);
@@ -220,12 +255,21 @@ public class VentanaAlmaceneros extends JFrame {
 		getPnVolverOpciones().setVisible(true);
 	}
 	
+	private void mostrarVentanaReferencia(){
+		getPnRecogidaEmpaquetadoProductos().setVisible(false);
+		getPnIntroducirReferencia().setVisible(true);
+	}
+	
 	private JButton getBtnEmpaquetado() {
 		if (btnEmpaquetado == null) {
 			btnEmpaquetado = new JButton("Empaquetado");
 			btnEmpaquetado.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					mostrarVentanaOpcionesEmpaquetado();
+					try {
+						mostrarVentanaOpcionesEmpaquetado();
+					} catch (ClassNotFoundException e1) {
+						e1.printStackTrace();
+					}
 				}
 			});
 			btnEmpaquetado.setBounds(176, 236, 102, 23);
@@ -297,10 +341,15 @@ public class VentanaAlmaceneros extends JFrame {
 					int seleccionada = tbRecogida.getSelectedRow();
 					Long id = Long.parseLong(tbRecogida
 							.getValueAt(seleccionada, 0).toString());
+					
+					Order o = new OrderController().getOrderById(id+"");
+					//WarehouseKeeper almacenero = new WarehouseKeeperController().
+					//		getWarehouseKeeperbyId(getTxLogin().getText());
+					getTxPedido().setText(o.getID()+"");
 					//TODO
-					//Order o = obtener pedido por ID;
 					//crear OT con el almacenero que soy ("almacenero") y el pedido seleccionado
 					//muestroPantalla de recogida de productos del pedido elegido
+					mostrarVentanaRecogiendo(o);
 				}
 			});
 		}
@@ -316,7 +365,7 @@ public class VentanaAlmaceneros extends JFrame {
 	
 	private JTable getTbEmpaquetado() {
 		if (tbEmpaquetado == null) {
-			String[] columnas = { "ID","DNI","Cantidad","Direccion", "Fecha" };
+			String[] columnas = { "ID","Cantidad", "Fecha"};
 			modeloTablaEmpaquetado = new DefaultTableModel(columnas, 0) {
 				private static final long serialVersionUID = 1L;
 
@@ -332,14 +381,18 @@ public class VentanaAlmaceneros extends JFrame {
 					Long id = Long.parseLong(tbEmpaquetado
 							.getValueAt(seleccionada, 0).toString());
 					//TODO
-					//Order o = obtener pedido por ID;
+					Order o = new OrderController().getOrderById(id+"");
+					o.setStatus("EMPAQUETANDO");
+					getTxPedido().setText(o.getID()+"");
 					//cambiar estado del pedido a empaquetando
 					//muestroPantalla de empaquetado de productos del pedido elegido
+					mostrarVentanaEmpaquetando(o);
 				}
 			});
 		}
 		return tbEmpaquetado;
 	}
+	
 	private JPanel getPnRecogidaEmpaquetado() {
 		if (pnRecogidaEmpaquetado == null) {
 			pnRecogidaEmpaquetado = new JPanel();
@@ -353,7 +406,7 @@ public class VentanaAlmaceneros extends JFrame {
 		if (pnPedido == null) {
 			pnPedido = new JPanel();
 			FlowLayout flowLayout = (FlowLayout) pnPedido.getLayout();
-			flowLayout.setHgap(35);
+			flowLayout.setHgap(20);
 			pnPedido.add(getLblPedido());
 			pnPedido.add(getTxPedido());
 		}
@@ -369,6 +422,7 @@ public class VentanaAlmaceneros extends JFrame {
 	private JTextField getTxPedido() {
 		if (txPedido == null) {
 			txPedido = new JTextField();
+			txPedido.setEditable(false);
 			txPedido.setColumns(10);
 		}
 		return txPedido;
@@ -377,7 +431,7 @@ public class VentanaAlmaceneros extends JFrame {
 		if (pnRecogidaEmpaquetadoProductos == null) {
 			pnRecogidaEmpaquetadoProductos = new JPanel();
 			pnRecogidaEmpaquetadoProductos.setLayout(new CardLayout(0, 0));
-			pnRecogidaEmpaquetadoProductos.add(getScpRecogidaProductos(), "name_66858758134312");
+			pnRecogidaEmpaquetadoProductos.add(getPnAuxiliarRecogida(), "name_614376670072341");
 			pnRecogidaEmpaquetadoProductos.add(getPnAuxiliarEmpaquetadoPedido(), "name_67775349536801");
 		}
 		return pnRecogidaEmpaquetadoProductos;
@@ -391,7 +445,7 @@ public class VentanaAlmaceneros extends JFrame {
 	}
 	private JTable getTbRecogidaProductos() {
 		if (tbRecogidaProductos == null) {
-			String[] columnas = { "Cantidad","Precio",
+			String[] columnas = { "ID","Cantidad","Precio",
 					"Pasillo", "Lado","Posicion","Altura" };
 			modeloTablaRecogidaProductos = new DefaultTableModel(columnas, 0) {
 				private static final long serialVersionUID = 1L;
@@ -405,14 +459,16 @@ public class VentanaAlmaceneros extends JFrame {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					int seleccionada = tbRecogidaProductos.getSelectedRow();
-					Long id = Long.parseLong(tbRecogidaProductos
+					id = Long.parseLong(tbRecogidaProductos
 							.getValueAt(seleccionada, 0).toString());
 					//TODO
+					mostrarVentanaReferencia();
 				}
 			});
 		}
 		return tbRecogidaProductos;
 	}
+	
 	private JScrollPane getScpEmpaquetadoPedido() {
 		if (scpEmpaquetadoPedido == null) {
 			scpEmpaquetadoPedido = new JScrollPane();
@@ -424,21 +480,21 @@ public class VentanaAlmaceneros extends JFrame {
 		if (tbEmpaquetadoPedido == null) {
 			String[] columnas = { "ID","Cantidad","Precio",
 					"Pasillo", "Lado","Posicion","Altura" };
-			modeloTablaRecogidaProductos = new DefaultTableModel(columnas, 0) {
+			modeloTablaEmpaquetadoPedido = new DefaultTableModel(columnas, 0) {
 				private static final long serialVersionUID = 1L;
 
 				public boolean isCellEditable(int row, int column) {
 					return false;
 				}
 			};
-			tbEmpaquetadoPedido = new JTable(modeloTablaRecogidaProductos);
+			tbEmpaquetadoPedido = new JTable(modeloTablaEmpaquetadoPedido);
 			tbEmpaquetadoPedido.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					int seleccionada = tbEmpaquetadoPedido.getSelectedRow();
-					Long id = Long.parseLong(tbEmpaquetadoPedido
+					id = Long.parseLong(tbEmpaquetadoPedido
 							.getValueAt(seleccionada, 0).toString());
-					//TODO
+					mostrarVentanaReferencia();
 				}
 			});
 		}
@@ -458,8 +514,8 @@ public class VentanaAlmaceneros extends JFrame {
 			btnComprobarReferencia.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if(getTbEmpaquetadoPedido().getSelectedRow() == -1){
-						JOptionPane.showMessageDialog(null, "Seleccione uno de"
-								+ " los productos \npara comprobar su referencia");
+						JOptionPane.showMessageDialog(null, "Seleccione uno de los productos \npara comprobar su referencia",
+								"Comprobacion de referencia", JOptionPane.INFORMATION_MESSAGE);
 					}
 					else{
 						id = Long.parseLong(getTbEmpaquetadoPedido()
@@ -488,6 +544,7 @@ public class VentanaAlmaceneros extends JFrame {
 			pnIntroducirReferencia.add(getBtnComprobarRerefencia());
 			pnIntroducirReferencia.add(getLblIntroducirReferenciaDel());
 			pnIntroducirReferencia.add(getTxReferencia());
+			pnIntroducirReferencia.add(getBtnGenerarIncidencia());
 		}
 		return pnIntroducirReferencia;
 	}
@@ -497,6 +554,7 @@ public class VentanaAlmaceneros extends JFrame {
 			btnCancelarReferencia.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					getPnIntroducirReferencia().setVisible(false);
+					getPnRecogidaEmpaquetadoProductos().setVisible(true);
 				}
 			});
 			btnCancelarReferencia.setBounds(61, 279, 169, 23);
@@ -509,13 +567,18 @@ public class VentanaAlmaceneros extends JFrame {
 			btnComprobarRerefencia.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if(!getTxReferencia().getText().equals(id+"")){
-						JOptionPane.showConfirmDialog(null, "Error, ese producto"
-								+ " no se encuentra en dicho pedido");
+						JOptionPane.showMessageDialog(null, "Error, ese producto no se encuentra en dicho pedido",
+								"Comprobacion de referencia", JOptionPane.ERROR_MESSAGE);
 					}
-					getPnIntroducirReferencia().setVisible(false);
+					else{
+						JOptionPane.showMessageDialog(null, "Correcto",
+								"Comprobacion de referencia", JOptionPane.INFORMATION_MESSAGE);
+						getPnIntroducirReferencia().setVisible(false);
+						getPnRecogidaEmpaquetadoProductos().setVisible(true);
+					}
 				}
 			});
-			btnComprobarRerefencia.setBounds(61, 203, 169, 23);
+			btnComprobarRerefencia.setBounds(61, 234, 169, 23);
 		}
 		return btnComprobarRerefencia;
 	}
@@ -534,5 +597,90 @@ public class VentanaAlmaceneros extends JFrame {
 			txReferencia.setColumns(10);
 		}
 		return txReferencia;
+	}
+	
+	
+	private void rellenarPedidosARecoger() throws ClassNotFoundException{
+		for(int i=modeloTablaRecogida.getRowCount()-1;i>=0;i--){
+			modeloTablaRecogida.removeRow(i);
+		}
+		Object[] nuevaFila = new Object[3];
+		
+		//TODO
+		List<Order> pedidos = new OrderController().getOrderByStatus("preparando");
+		/*List<Order> pedidosIncidente = new OrderController().getOrderByStatus("INCIDENTE");
+		for(Order o : pedidosIncidente){
+			pedidos.add(o);
+		}*/
+		for (Order c : pedidos) {
+			nuevaFila[0] = c.getID();
+			int cantidad = 0;
+			for(OrderItem o : c.getProducts()){
+				cantidad = cantidad + o.getQuantity();
+			}
+			nuevaFila[1] = cantidad;
+			nuevaFila[2] = c.getDateReceived();
+			modeloTablaRecogida.addRow(nuevaFila);
+		}
+	}
+	
+	private void rellenarPedidosAEmpaquetar() throws ClassNotFoundException{
+		for(int i=modeloTablaEmpaquetado.getRowCount()-1;i>=0;i--){
+			modeloTablaEmpaquetado.removeRow(i);
+		}
+		Object[] nuevaFila = new Object[3];
+		
+		List<Order> pedidos = new OrderController().getOrderByStatus("pendiente_empaquetado");
+		
+		for (Order c : pedidos) {
+			nuevaFila[0] = c.getID();
+			int cantidad = 0;
+			for(OrderItem o : c.getProducts()){
+				cantidad = cantidad + o.getQuantity();
+			}
+			nuevaFila[1] = cantidad;
+			nuevaFila[2] = c.getDateReceived();
+			modeloTablaEmpaquetado.addRow(nuevaFila);
+		}
+	}
+	
+	private void rellenarProductosPedido(Order o){
+		/*for(int i=modeloTablaRecogidaProductos.getRowCount()-1;i>=0;i--){
+			modeloTablaRecogidaProductos.removeRow(i);
+		}*/
+		Object[] nuevaFila = new Object[7];
+
+		List<OrderItem> productos = new OrderController().
+				getAllByOrderId(o.getID()+"");
+		for (OrderItem c : productos) {
+			nuevaFila[0] = c.getID();
+			nuevaFila[1] = c.getQuantity();
+			nuevaFila[2] = c.getProductPrice();
+			nuevaFila[3] = c.getProductProductLocationCorridor();
+			nuevaFila[4] = c.getProductProductLocationSide();
+			nuevaFila[5] = c.getProductProductLocationPosition();
+			nuevaFila[6] = c.getProductProductLocationHeight();			
+			modeloTablaRecogidaProductos.addRow(nuevaFila);
+		}
+	}
+	private JPanel getPnAuxiliarRecogida() {
+		if (pnAuxiliarRecogida == null) {
+			pnAuxiliarRecogida = new JPanel();
+			pnAuxiliarRecogida.setLayout(new BorderLayout(0, 0));
+			pnAuxiliarRecogida.add(getScpRecogidaProductos(), BorderLayout.CENTER);
+		}
+		return pnAuxiliarRecogida;
+	}
+	private JButton getBtnGenerarIncidencia() {
+		if (btnGenerarIncidencia == null) {
+			btnGenerarIncidencia = new JButton("Generar incidencia");
+			btnGenerarIncidencia.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					//TODO INCIDENCIA
+				}
+			});
+			btnGenerarIncidencia.setBounds(61, 184, 169, 23);
+		}
+		return btnGenerarIncidencia;
 	}
 }
