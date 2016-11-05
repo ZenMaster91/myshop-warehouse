@@ -6,6 +6,7 @@ import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
 import com.myshop.model.warehouseKeeper.WarehouseKeeper;
+import com.myshop.warehouse.util.DefaultSql2o;
 
 public class WarehouseKeeperController {
 
