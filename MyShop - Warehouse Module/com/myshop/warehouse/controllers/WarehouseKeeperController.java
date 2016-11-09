@@ -10,17 +10,13 @@ import com.myshop.model.order.Incidence;
 import com.myshop.model.order.MailBox;
 import com.myshop.model.order.Order;
 import com.myshop.model.order.OrderItem;
-import com.myshop.model.order.Status;
 import com.myshop.model.product.Category;
 import com.myshop.model.product.Product;
 import com.myshop.model.product.ProductLocation;
 import com.myshop.model.product.Side;
 import com.myshop.model.warehouseKeeper.WarehouseKeeper;
-import com.myshop.model.workingPlan.WorkingPlan;
 import com.myshop.model.workingPlan.WorkingPlanItem;
-import com.myshop.warehouse.generators.WorkingPlanGenerator;
 import com.myshop.warehouse.util.DefaultSql2o;
-import com.sun.activation.registries.MailcapParseException;
 
 public class WarehouseKeeperController {
 
@@ -52,11 +48,6 @@ public class WarehouseKeeperController {
 				+ "LEFT JOIN myshop.full_products as p on oi.product_id=p.product_id "
 				+ "LEFT JOIN myshop.incidence as i on oi.incidence_id=i.incidence_id "
 				+ "WHERE wk_id = :id AND collected = 0 ORDER BY wp.wp_id";
-
-		String sql = "SELECT * FROM myshop.working_plan AS wp "
-				+ "LEFT JOIN myshop.working_plan_item AS wpi ON wp.wp_id = wpi.wp_id "
-				+ "LEFT JOIN myshop.order_item AS oi ON wpi.order_item_id = oi.order_item_id "
-				+ "LEFT JOIN myshop.order AS o ON oi.order_id = o.order_id " + "WHERE wk_id = :id AND collected = 0";
 
 		List<Map<String, Object>> map = null;
 		try (Connection con = DefaultSql2o.SQL2O.open()) {

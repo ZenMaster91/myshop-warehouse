@@ -9,8 +9,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import javax.net.ssl.SSLEngineResult.Status;
-
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
@@ -29,7 +27,6 @@ import com.myshop.model.product.ProductLocation;
 import com.myshop.model.product.Side;
 import com.myshop.model.user.User;
 import com.myshop.warehouse.util.DefaultSql2o;
-import com.myshop.warehouse.util.JavaTypes;
 
 public class OrderController implements Comparable<OrderController> {
 

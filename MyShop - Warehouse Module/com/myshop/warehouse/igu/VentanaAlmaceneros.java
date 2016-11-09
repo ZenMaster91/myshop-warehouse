@@ -1,12 +1,10 @@
 package com.myshop.warehouse.igu;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
 
 import com.myshop.model.order.MailBox;
 import com.myshop.model.order.Order;
@@ -44,7 +42,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 import java.awt.event.ActionEvent;
-import java.awt.FlowLayout;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ImageIcon;
@@ -71,13 +68,9 @@ public class VentanaAlmaceneros extends JFrame {
 	private JLabel lblRecogida;
 	private JLabel lblEmpaquetado;
 	private JPanel pnOpciones;
-	private DefaultTableModel modeloTablaRecogida;
-	private DefaultTableModel modeloTablaEmpaquetado;
-	private DefaultTableModel modeloTablaEmpaquetadoPedido;
 	private DefaultNonEditableTableModel<WorkingPlanController> modeloTablaPedidosPorRecogerAlmacen;
 	private DefaultNonEditableTableModel<WorkingPlanItemController> modeloTablaOrdenTrabajoIndividual;
 	private DefaultNonEditableTableModel<OrderItemController> modeloTablaEmpaquetarPedido;
-	private Long id;
 	private JLabel lblIdAlmacenero;
 	private JLabel lblalmacn;
 	private JPanel panel;

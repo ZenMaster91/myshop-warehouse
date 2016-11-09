@@ -31,8 +31,6 @@ public class DefaultNonEditableTableModel<T extends Comparable<T>> extends Defau
 	 * @throws Exception 
 	 */
 	public void addRow(T row, Object... values) throws Exception {
-		if(/*contains(row)*/false)
-			throw new Exception();
 		Object[] newRow = new Object[getColumnCount()];
 
 		for(int i = 0; i < getColumnCount(); i++) {
@@ -40,10 +38,6 @@ public class DefaultNonEditableTableModel<T extends Comparable<T>> extends Defau
 		}
 		super.addRow(newRow);
 		list.add(row);
-	}
-
-	private boolean contains(T wpc) {
-		return list.contains(wpc);
 	}
 
 	/**

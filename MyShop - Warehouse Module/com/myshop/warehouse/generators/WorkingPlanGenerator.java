@@ -4,16 +4,10 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sql2o.Connection;
-import org.sql2o.Query;
-import org.sql2o.Sql2o;
-
 import com.myshop.model.order.Order;
 import com.myshop.model.order.OrderItem;
-import com.myshop.model.workingPlan.WorkingPlanItem;
 import com.myshop.warehouse.controllers.OrderController;
 import com.myshop.warehouse.controllers.WorkingPlanController;
-import com.myshop.warehouse.util.GetLastIndexCreated;
 
 /**
  * WorkingPlanGenerator generates working plans acording to a max load.
@@ -115,37 +109,5 @@ public class WorkingPlanGenerator implements Generator {
 			workingPlans.add(wpc);
 		// save();
 		return this;
-	}
-
-	/**
-	 * Sends the current status to the database.
-	 */
-	private void save() {
-		final String insertWorkingPlan = "INSERT INTO myshop.working_pan() VALUES ()";
-		final String insertWorkingPlanItem = "INSERT INTO myshop.working_plan_item (order_item_id, wp_id) VALUES (:item_id, :wp_id)";
-		Sql2o sql2o = new Sql2o("urlToDatbase");
-		Query query = null;
-		Connection con = null;
-
-		for (WorkingPlanController wpc : workingPlans) {
-
-			con = sql2o.open();
-			con.createQuery(insertWorkingPlan).executeUpdate();
-
-			int index = new GetLastIndexCreated().get();
-
-			con = sql2o.beginTransaction();
-			query = con.createQuery(insertWorkingPlanItem);
-
-			for (WorkingPlanItem wpi : wpc.getItems()) {
-				OrderItem oi = wpi.getOrderItem();
-				query.addParameter("item_id", oi.getProductID()).addParameter("wp_id", index).addToBatch();
-			}
-
-		}
-		// Executes entire batch. Speeds up the performance.
-		query.executeBatch();
-		// By committing all the work before we avoid a roll back.
-		con.commit();
 	}
 }
