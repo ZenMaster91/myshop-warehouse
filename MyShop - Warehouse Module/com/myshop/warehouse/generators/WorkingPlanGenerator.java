@@ -24,7 +24,7 @@ import com.myshop.warehouse.util.GetLastIndexCreated;
  */
 public class WorkingPlanGenerator implements Generator {
 
-	public final static int MAX_WP_LOAD = 10;
+	public final static double MAX_WP_LOAD = 10.0;
 
 	private List<WorkingPlanController> workingPlans;
 
@@ -55,7 +55,7 @@ public class WorkingPlanGenerator implements Generator {
 	public WorkingPlanGenerator generate() {
 		// We create a default wpc pointer to manage different objects inside
 		// the loop.
-		WorkingPlanController wpc;
+		WorkingPlanController wpc = new WorkingPlanController();
 
 		// We will work over this auxiliary pointer that ponits to all the not
 		// assigned items.
@@ -67,34 +67,53 @@ public class WorkingPlanGenerator implements Generator {
 			e.printStackTrace();
 		}
 		for (Order o : aux) {
-			if (new OrderController().getWeight(o) <= MAX_WP_LOAD) {
-				wpc = new WorkingPlanController().addAll(o.getProducts());
+			System.out.println("Order received: " + o.getID() + " W: " + new OrderController().getWeight(o) + " WPC-W: " + wpc.getTotalWeight() + " C: " + (wpc.getTotalWeight() + new OrderController().getWeight(o) <= MAX_WP_LOAD));
+			if (wpc.getTotalWeight() + new OrderController().getWeight(o) <= MAX_WP_LOAD) {
+				System.out.println("Order fits simple condition: " + o.getID());
+				wpc.addAll(o.getProducts());
 			} else {
+				if(!wpc.isChild() && wpc.getNumberOfItems()>0)
+					workingPlans.add(wpc);
 				wpc = new WorkingPlanController();
-
+				WorkingPlanController parent = wpc;
+				List<OrderItem> toDelete = new ArrayList<OrderItem>();
 				for (OrderItem oi : o.getProducts()) {
-					// Special case if there's no items in the list and we find
-					// one
-					// that is heavier than the max_load per working plan.
-					if (wpc.getNumberOfItems() < 1 && oi.getProduct().getWeight() > MAX_WP_LOAD) {
-						wpc.addItem(oi); // Add it to the working plan.
-						workingPlans.add(wpc);
-						wpc = new WorkingPlanController();
-					} else {
-						// Then usual case that is try to add the item to the
-						// working plan if the current total weight plus the
-						// item
-						// weight is no grater than the max load.
-						if (wpc.getTotalWeight() + oi.getProduct().getWeight() <= MAX_WP_LOAD) {
-							wpc.addItem(oi); // Add it to the working plan.
-						} else {
-							wpc = new WorkingPlanController().addItem(oi);
-						}
+					if (wpc.getNumberOfItems() < 1 && oi.getProductWeight() > MAX_WP_LOAD) {
+						wpc.addItem(oi);
+						toDelete.add(oi);
+						if(!wpc.isChild() && wpc.getNumberOfItems()>0)
+							workingPlans.add(wpc);
+						wpc = new WorkingPlanController().setParent(parent);
 					}
+				}
+				o.getProducts().removeAll(toDelete);
+				toDelete.clear();
+				if(wpc.getNumberOfItems() > 0)
+					wpc = new WorkingPlanController().setParent(parent);
+				int i = 0, j = 1;
+				while(i < o.getProducts().size()) {
+					wpc.addItem(o.getProducts().get(i));
+					while(j < o.getProducts().size()) {
+						if(wpc.getTotalWeight() + o.getProducts().get(j).getProductWeight() <= MAX_WP_LOAD) {
+							wpc.addItem(o.getProducts().get(j));
+						} else {
+							if(!wpc.isChild() && wpc.getNumberOfItems()>0)
+								workingPlans.add(wpc);
+							wpc = new WorkingPlanController().setParent(parent);
+						}
+						j++;
+					}
+					i = j;
+				}
+				if(!wpc.isChild() && wpc.getNumberOfItems()>0) {
+					workingPlans.add(wpc);
+					wpc = new WorkingPlanController();
 				}
 			}
 		}
-		//save();
+		if(!wpc.isChild() && wpc.getNumberOfItems()>0)
+			workingPlans.add(wpc);
+		// save();
 		return this;
 	}
 
