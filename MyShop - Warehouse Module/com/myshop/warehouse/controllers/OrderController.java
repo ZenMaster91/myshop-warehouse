@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.sql2o.Connection;
-import org.sql2o.Sql2o;
 
 import com.myshop.model.customer.Address;
 import com.myshop.model.customer.Company;
@@ -27,6 +26,7 @@ import com.myshop.model.product.ProductLocation;
 import com.myshop.model.product.Side;
 import com.myshop.model.user.User;
 import com.myshop.warehouse.util.DefaultSql2o;
+import com.myshop2.sql.QueryLoader;
 
 public class OrderController implements Comparable<OrderController> {
 
@@ -57,10 +57,9 @@ public class OrderController implements Comparable<OrderController> {
 
 	public List<Order> getNotAssigned() throws ParseException {
 		List<Order> aux = new ArrayList<Order>();
-		String sql = "SELECT DISTINCT * FROM myshop.full_order AS o LEFT JOIN myshop.order as ord on o.order_id=ord.order_id LEFT JOIN myshop.full_products AS p ON o.product_id = p.product_id LEFT JOIN myshop.full_customers AS c ON o.customer_id = c.customer_id LEFT JOIN myshop.order_item AS oi ON o.order_id = oi.order_id AND o.product_id = oi.product_id WHERE o.working_plan_id IS NULL AND (ord.status_id=2 OR ord.status_id=6) ORDER BY o.order_id";
 		List<Map<String, Object>> map;
 		try (Connection con = new DefaultSql2o().open()) {
-			map = con.createQuery(sql).executeAndFetchTable().asList();
+			map = con.createQuery(QueryLoader.load("NotAssignedOrders.sql")).executeAndFetchTable().asList();
 		}
 		int last = 0;
 		Order o = new Order();
@@ -104,6 +103,7 @@ public class OrderController implements Comparable<OrderController> {
 
 			o.getProducts().add(oi);
 			o.setStatus(((String) m.get("status")).toUpperCase());
+			o.setDateReceived((Date) m.get("date_received"));
 
 			if (((int) m.get("order_id")) != last && o.getProducts().size() > 0) {
 				// System.out.println("Orden no asignada: " + o.getID() + " con
@@ -123,10 +123,10 @@ public class OrderController implements Comparable<OrderController> {
 	
 	public List<Order> getPendientesEmpaquetando() throws ParseException {
 		List<Order> aux = new ArrayList<Order>();
-		String sql = "SELECT DISTINCT * FROM myshop.full_order AS o LEFT JOIN myshop.order as ord on o.order_id=ord.order_id LEFT JOIN myshop.full_products AS p ON o.product_id = p.product_id LEFT JOIN myshop.full_customers AS c ON o.customer_id = c.customer_id LEFT JOIN myshop.order_item AS oi ON o.order_id = oi.order_id AND o.product_id = oi.product_id WHERE (ord.status_id=3 OR ord.status_id=4) ORDER BY o.order_id";
+		//String sql = "SELECT DISTINCT * FROM myshop.full_order AS o LEFT JOIN myshop.order as ord on o.order_id=ord.order_id LEFT JOIN myshop.full_products AS p ON o.product_id = p.product_id LEFT JOIN myshop.full_customers AS c ON o.customer_id = c.customer_id LEFT JOIN myshop.order_item AS oi ON o.order_id = oi.order_id AND o.product_id = oi.product_id WHERE (ord.status_id=3 OR ord.status_id=4) ORDER BY o.order_id";
 		List<Map<String, Object>> map;
 		try (Connection con = new DefaultSql2o().open()) {
-			map = con.createQuery(sql).executeAndFetchTable().asList();
+			map = con.createQuery(QueryLoader.load("PendientesEmpaquetadoOrders.sql")).executeAndFetchTable().asList();
 		}
 		int last = 0;
 		Order o = new Order();
@@ -196,106 +196,6 @@ public class OrderController implements Comparable<OrderController> {
 			aux.add(o);
 		}
 		return aux;
-	}
-
-	private Sql2o sql2o = DefaultSql2o.SQL2O;
-
-	public List<Order> getAll() {
-		String complexSql = "SELECT * FROM myshop.order";
-		try (Connection con = sql2o.open()) {
-			return con.createQuery(complexSql).executeAndFetch(Order.class);
-		}
-	}
-
-	public Order getOrderById(String id) {
-		String complexSql = "SELECT o.*,s.name FROM myshop.order o , myshop.status s where s.status_id=o.status_id and o.order_id= "
-				+ id;
-		List<Map<String, Object>> map;
-		try (Connection con = sql2o.open()) {
-			map = con.createQuery(complexSql).executeAndFetchTable().asList();
-		}
-		Order o = new Order();
-		for (Map<String, Object> m : map) {
-			o.setID((int) m.get("order_id"));
-			o.setCustomer(new Customer((int) m.get("customer_id")));
-			o.setStatus((String) m.get("name"));
-			o.setProducts(getAllByOrderId(o.getID() + ""));
-			o.setDateReceived((Date) m.get("date_received"));
-		}
-		return o;
-	}
-
-	public List<Order> getOrderByStatus(String status) {
-		String complexSql = "SELECT o.*,i.*, p.* " + "FROM myshop.order_item i , myshop.order o , myshop.status s, "
-				+ "myshop.full_products p where i.product_id=p.product_id and " + "o.order_id=i.order_id and "
-				+ "o.status_id=s.status_id and s.name= :status";
-		List<Map<String, Object>> map;
-		List<Order> orders = new ArrayList<Order>();
-		List<OrderItem> lista;
-		try (Connection con = sql2o.open()) {
-			map = con.createQuery(complexSql).addParameter("status", status).executeAndFetchTable().asList();
-		}
-		for (Map<String, Object> m : map) {
-			Order o = new Order();
-			o.setID((int) m.get("order_id"));
-			lista = new ArrayList<OrderItem>();
-			for (Map<String, Object> m2 : map) {
-				if ((int) m.get("order_id") == (int) m2.get("order_id")) {
-					OrderItem i = new OrderItem();
-					i.setID((int) m2.get("order_item_id"));
-					i.setQuantity((int) m2.get("quantity"));
-					Product p = new Product();
-					p.setCorridor((int) m2.get("corridor"));
-					p.setHeight((int) m2.get("height"));
-					p.setPosition((int) m2.get("position"));
-					p.setPrice((double) m2.get("price"));
-					p.setSide((String) m2.get("side"));
-					lista.add(i);
-				}
-			}
-			o.setProducts(lista);
-			o.setDateReceived((Date) m.get("date_received"));
-
-			if (!contieneOrder(orders, o)) {
-				orders.add(o);
-			}
-		}
-		return orders;
-	}
-
-	private boolean contieneOrder(List<Order> orders, Order o) {
-		for (Order or : orders) {
-			if (or.getID() == o.getID()) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public List<OrderItem> getAllByOrderId(String id) {
-		String complexSql = "SELECT * FROM myshop.order_item o, myshop.product_location l, myshop.side s , myshop.product p where s.side_id=l.side_id and p.product_id=o.product_id and l.product_id=o.product_id and o.order_id = "
-				+ id + " order by l.corridor";
-		List<Map<String, Object>> map;
-		try (Connection con = sql2o.open()) {
-			map = con.createQuery(complexSql).executeAndFetchTable().asList();
-		}
-
-		List<OrderItem> orders = new ArrayList<OrderItem>();
-		for (Map<String, Object> m : map) {
-			OrderItem o = new OrderItem();
-			Product p = new Product();
-			o.setQuantity((int) m.get("quantity"));
-			o.setID((int) m.get("order_item_id"));
-			p.setCorridor((int) m.get("corridor"));
-			p.setHeight((int) m.get("heigth"));
-			p.setID((int) m.get("product_id"));
-			p.setPosition((int) m.get("position"));
-			p.setPrice((double) m.get("price"));
-			p.setSide((String) m.get("name"));
-			o.setProduct(p);
-			orders.add(o);
-		}
-		return orders;
 	}
 
 	public String printShippingInfo() {
