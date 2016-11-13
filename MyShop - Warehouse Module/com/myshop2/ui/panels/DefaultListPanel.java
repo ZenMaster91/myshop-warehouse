@@ -12,6 +12,9 @@ import javax.swing.JSeparator;
 
 import java.awt.Dimension;
 import java.awt.Color;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 
 public class DefaultListPanel extends JPanel {
 
@@ -25,6 +28,12 @@ public class DefaultListPanel extends JPanel {
 	 * Create the panel.
 	 */
 	public DefaultListPanel() {
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				System.out.println("Mouse Clicked " + getTitle().getText());
+			}
+		});
 		setBorder(null);
 		setBackground(Color.WHITE);
 		setPreferredSize(new Dimension(365, 80));
