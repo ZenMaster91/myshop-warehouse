@@ -3,6 +3,8 @@ package com.myshop2.ui.loaders;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
@@ -34,6 +36,12 @@ public class LoadPedidosInContainer {
 			pp.setPreferredSize(new Dimension(width - 5, 80));
 			pp.setMaximumSize(new Dimension(width - 5, 80));
 			pp.setMaximumSize(new Dimension(width - 5, 80));
+			pp.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					System.out.println("Mouse Clicked " + pp.getTitle().getText());
+				}
+			});
 
 			// Adding the panel to the container.
 			cont.add(pp);
