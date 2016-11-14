@@ -16,12 +16,12 @@ public class SystemFont {
 			scale = 2;
 			//System.out.println("Retina Display: " + (13 / 2) + 1);
 		}
-		title = new Font("SF UI Text Medium", Font.PLAIN, (17 / scale) + 1);
-		date = new Font("SF UI Text Medium", Font.PLAIN, (13 / scale) + 1);
-		description = new Font("SF UI Text Medium", Font.PLAIN, (13 / scale) + 1);
-		normalText = new Font("SF UI Text Regular", Font.PLAIN, (13 / scale) + 1);
-		smallerText = new Font("SF UI Text Medium", Font.PLAIN, (11 / scale) + 1);
-		tabBarText = new Font("SF UI Text Medium", Font.PLAIN, (10 / scale) + 1);
+		title = new Font("SFUIText-Medium", Font.PLAIN, (17 / scale) + 1);
+		date = new Font("SFUIText-Medium", Font.PLAIN, (13 / scale) + 1);
+		description = new Font("SFUIText-Medium", Font.PLAIN, (13 / scale) + 1);
+		normalText = new Font("SFUIText-Regular", Font.PLAIN, (13 / scale) + 1);
+		smallerText = new Font("SFUIText-Medium", Font.PLAIN, (11 / scale) + 1);
+		tabBarText = new Font("SFUIText-Medium", Font.PLAIN, (10 / scale) + 1);
 	}
 
 }
