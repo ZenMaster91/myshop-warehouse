@@ -31,7 +31,7 @@ public class LoadPedidosInContainer {
 				.setDescLine1("Nº Objetos: " + new OrderController(o).getNumberOfItems())
 				.setDescLine2("Peso: " + new OrderController().getWeight(o) + " Kg")
 				.activeIndicator(false);
-
+			
 			// Setting the size of the panel inside the list.
 			pp.setPreferredSize(new Dimension(width - 5, 80));
 			pp.setMaximumSize(new Dimension(width - 5, 80));
