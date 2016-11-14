@@ -246,6 +246,7 @@ public class WarehouseAPP extends JFrame {
 	private JPanel getTabBar() {
 		if (tabBar == null) {
 			tabBar = new JPanel();
+			tabBar.setBorder(new MatteBorder(1, 0, 0, 0, (Color) SystemColor.lineGray));
 			tabBar.setBounds(0, 596, 375, 49);
 			tabBar.setBackground(SystemColor.lightGray);
 			tabBar.setLayout(null);
