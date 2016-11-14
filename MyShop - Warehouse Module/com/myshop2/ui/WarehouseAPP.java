@@ -171,7 +171,7 @@ public class WarehouseAPP extends JFrame {
 			lblInicioDeLa = new JLabel("myShop");
 			lblInicioDeLa.setHorizontalAlignment(SwingConstants.CENTER);
 			lblInicioDeLa.setBounds(55, 128, 254, 57);
-			lblInicioDeLa.setFont(SystemFont.HEADER);
+			lblInicioDeLa.setFont(new SystemFont().header);
 		}
 		return lblInicioDeLa;
 	}
@@ -188,9 +188,13 @@ public class WarehouseAPP extends JFrame {
 		return scPaneListaPedidos;
 	}
 
-	private void loadPedidosInView() throws ParseException {
-		getScPaneListaPedidos().getViewport().setView(LoadPedidosInContainer
-				.load(new OrderController().getNotAssigned(), getScPaneListaPedidos().getWidth()));
+	private void loadPedidosInView() {
+		try {
+			getScPaneListaPedidos().getViewport().setView(LoadPedidosInContainer
+					.load(new OrderController().getNotAssigned(), getScPaneListaPedidos().getWidth()));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		revalidate();
 		repaint();
 	}
@@ -204,15 +208,9 @@ public class WarehouseAPP extends JFrame {
 					SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
 						@Override
 						protected Void doInBackground() throws Exception {
-							// Here we invoke the method that will change the localization.
-							try {
-								CursorMode.wait(btnEntrar);
-								loadPedidosInView();
-								getPedidosTitleCounter().setText("Pedidos ("+LoadPedidosInContainer.numberOfOrders()+")");
-							} catch (ParseException ex) {
-								// TODO Auto-generated catch block
-								ex.printStackTrace();
-							}
+							CursorMode.wait(btnEntrar);
+							loadPedidosInView();
+							getPedidosTitleCounter().setText("Pedidos ("+LoadPedidosInContainer.numberOfOrders()+")");
 							return null;
 						}
 
@@ -248,6 +246,7 @@ public class WarehouseAPP extends JFrame {
 	private JPanel getTabBar() {
 		if (tabBar == null) {
 			tabBar = new JPanel();
+			tabBar.setBorder(new MatteBorder(1, 0, 0, 0, (Color) SystemColor.lineGray));
 			tabBar.setBounds(0, 596, 375, 49);
 			tabBar.setBackground(SystemColor.lightGray);
 			tabBar.setLayout(null);
@@ -261,7 +260,7 @@ public class WarehouseAPP extends JFrame {
 		if (time == null) {
 			time = new JLabel("12:41 AM");
 			time.setHorizontalAlignment(SwingConstants.CENTER);
-			time.setFont(SystemFont.smallerText);
+			time.setFont(new SystemFont().smallerText);
 			time.setBounds(157, 0, 61, 16);
 		}
 		return time;
@@ -271,7 +270,7 @@ public class WarehouseAPP extends JFrame {
 			pedidosTitleCounter = new JLabel("Pedidos (5)");
 			pedidosTitleCounter.setHorizontalAlignment(SwingConstants.CENTER);
 			pedidosTitleCounter.setBounds(131, 30, 112, 24);
-			pedidosTitleCounter.setFont(SystemFont.TITLE);
+			pedidosTitleCounter.setFont(new SystemFont().title);
 		}
 		return pedidosTitleCounter;
 	}
@@ -281,7 +280,7 @@ public class WarehouseAPP extends JFrame {
 			txtIdAlmacenero.setHorizontalAlignment(SwingConstants.CENTER);
 			txtIdAlmacenero.setBounds(44, 302, 286, 26);
 			txtIdAlmacenero.setColumns(10);
-			txtIdAlmacenero.setFont(SystemFont.normalText);
+			txtIdAlmacenero.setFont(new SystemFont().normalText);
 		}
 		return txtIdAlmacenero;
 	}
@@ -290,7 +289,7 @@ public class WarehouseAPP extends JFrame {
 			lblIdAlmacenero = new JLabel("ID Almacenero:");
 			lblIdAlmacenero.setHorizontalAlignment(SwingConstants.CENTER);
 			lblIdAlmacenero.setBounds(116, 281, 142, 16);
-			lblIdAlmacenero.setFont(SystemFont.DESCRIPTION);
+			lblIdAlmacenero.setFont(new SystemFont().description);
 		}
 		return lblIdAlmacenero;
 	}
@@ -301,7 +300,7 @@ public class WarehouseAPP extends JFrame {
 			tabIconPedidos.setHorizontalTextPosition(SwingConstants.CENTER);
 			tabIconPedidos.setHorizontalAlignment(SwingConstants.CENTER);
 			tabIconPedidos.setVerticalTextPosition(SwingConstants.BOTTOM);
-			tabIconPedidos.setFont(SystemFont.tabBarText);
+			tabIconPedidos.setFont(new SystemFont().tabBarText);
 			tabIconPedidos.setForeground(SystemColor.blue);
 			tabIconPedidos.setIcon(new ImageIcon(WarehouseAPP.class.getResource("/com/myshop2/ui/icons/basket-selected.png")));
 			tabIconPedidos.setBounds(6, 3, 62, 43);
@@ -317,7 +316,7 @@ public class WarehouseAPP extends JFrame {
 			tabIconOT.setHorizontalTextPosition(SwingConstants.CENTER);
 			tabIconOT.setHorizontalAlignment(SwingConstants.CENTER);
 			tabIconOT.setForeground(SystemColor.textGray);
-			tabIconOT.setFont(SystemFont.tabBarText);
+			tabIconOT.setFont(new SystemFont().tabBarText);
 			tabIconOT.setBounds(148, 3, 62, 43);
 		}
 		return tabIconOT;
@@ -331,7 +330,7 @@ public class WarehouseAPP extends JFrame {
 			lblEmpaquetado.setHorizontalTextPosition(SwingConstants.CENTER);
 			lblEmpaquetado.setHorizontalAlignment(SwingConstants.CENTER);
 			lblEmpaquetado.setForeground(SystemColor.textGray);
-			lblEmpaquetado.setFont(SystemFont.tabBarText);
+			lblEmpaquetado.setFont(new SystemFont().tabBarText);
 			lblEmpaquetado.setBounds(276, 3, 93, 43);
 		}
 		return lblEmpaquetado;

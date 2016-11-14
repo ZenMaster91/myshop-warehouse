@@ -1,4 +1,4 @@
-package com.myshop2.ui.fonts.sansserif;
+package com.myshop2.ui.fonts.sanfrancisco;
 
 import java.awt.Font;
 import java.awt.FontFormatException;
@@ -14,7 +14,7 @@ public class SanFranciscoFont {
 			SF_UI_Text_Light, SF_UI_Text_LightItalic, SF_UI_Text_Medium, SF_UI_Text_MediumItalic, SF_UI_Text_Regular,
 			SF_UI_Text_RegularItalic, SF_UI_Text_Semibold, SF_UI_Text_SemiboldItalic;
 	
-	private static final String PATH = "com/myshop2/ui/fonts/sansserif/";
+	private static final String PATH = "com/myshop2/ui/fonts/sanfrancisco/";
 
 	public SanFranciscoFont() {
 		try {
@@ -92,6 +92,10 @@ public class SanFranciscoFont {
 		         GraphicsEnvironment.getLocalGraphicsEnvironment();
 		     ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(PATH+"SF-UI-Display-Black.otf")));
 		     ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(PATH+"SF-UI-Display-Medium.otf")));
+		     ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(PATH+"SF-UI-Display-Regular.otf")));
+		     ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(PATH+"SF-UI-Text-Medium.otf")));
+		     ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(PATH+"SF-UI-Text-Regular.otf")));
+		     
 		} catch (IOException|FontFormatException e) {
 		     System.out.print(e.getMessage());
 		}
