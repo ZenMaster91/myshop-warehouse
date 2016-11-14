@@ -25,12 +25,12 @@ public class LoadPedidosInContainer {
 			DefaultListPanel pp = new DefaultListPanel();
 
 			// Set values according with the order.
-			pp.getTitle().setText("Pedido: " + o.getID());
 			SimpleDateFormat df = new SimpleDateFormat("MMMM dd, HH:mm aa", new Locale("es", "ES"));
-			pp.getDateMoreInfo().setText(df.format(o.getDateReceived()));
-			pp.getDescLine1().setText("Nº Objetos: " + new OrderController(o).getNumberOfItems());
-			pp.getDescLine2().setText("Peso: " + new OrderController().getWeight(o) + " Kg");
-			pp.getIndicator().setVisible(false);
+			pp.setTitle("Pedido: " + o.getID())
+				.setDateInfo(df.format(o.getDateReceived()))
+				.setDescLine1("Nº Objetos: " + new OrderController(o).getNumberOfItems())
+				.setDescLine2("Peso: " + new OrderController().getWeight(o) + " Kg")
+				.activeIndicator(false);
 
 			// Setting the size of the panel inside the list.
 			pp.setPreferredSize(new Dimension(width - 5, 80));

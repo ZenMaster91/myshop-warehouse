@@ -15,11 +15,11 @@ import java.awt.Color;
 
 public class DefaultListPanel extends JPanel {
 
-	private static final long serialVersionUID = 1L;
+	public static final long serialVersionUID = 1L;
 
-	private JSeparator separator;
-	private JLabel title, dateMoreInfo, descLine1, descLine2;
-	private JLabel indicator;
+	public JSeparator separator;
+	public JLabel title, dateMoreInfo, descLine1, descLine2;
+	public JLabel indicator;
 
 	/**
 	 * Create the panel.
@@ -42,7 +42,7 @@ public class DefaultListPanel extends JPanel {
 		if (dateMoreInfo == null) {
 			dateMoreInfo = new JLabel("Noviembre 11, 10:30 AM");
 			dateMoreInfo.setIconTextGap(5);
-			dateMoreInfo.setFont(SystemFont.DATE);
+			dateMoreInfo.setFont(new SystemFont().date);
 			dateMoreInfo.setHorizontalTextPosition(SwingConstants.LEFT);
 			dateMoreInfo.setIcon(
 					new ImageIcon(DefaultListPanel.class.getResource("/com/myshop2/ui/icons/Next.png")));
@@ -53,15 +53,26 @@ public class DefaultListPanel extends JPanel {
 		}
 		return dateMoreInfo;
 	}
+	
+	public DefaultListPanel setDateInfo(String content) {
+		getDateMoreInfo().setText(content);
+		return this;
+	}
+	
 	public JLabel getDescLine1() {
 		if (descLine1 == null) {
 			descLine1 = new JLabel("Nº Objetos: 5");
 			descLine1.setBackground(Color.WHITE);
 			descLine1.setForeground(SystemColor.textGray);
 			descLine1.setBounds(25, 27, 334, 22);
-			descLine1.setFont(SystemFont.DESCRIPTION);
+			descLine1.setFont(new SystemFont().description);
 		}
 		return descLine1;
+	}
+	
+	public DefaultListPanel setDescLine1(String content) {
+		getDescLine1().setText(content);
+		return this;
 	}
 
 	public JLabel getDescLine2() {
@@ -70,12 +81,17 @@ public class DefaultListPanel extends JPanel {
 			descLine2.setBackground(Color.WHITE);
 			descLine2.setForeground(SystemColor.textGray);
 			descLine2.setBounds(25, 50, 334, 22);
-			descLine2.setFont(SystemFont.DESCRIPTION);
+			descLine2.setFont(new SystemFont().description);
 		}
 		return descLine2;
 	}
+	
+	public DefaultListPanel setDescLine2(String content) {
+		getDescLine2().setText(content);
+		return this;
+	}
 
-	private JSeparator getSeparator() {
+	public JSeparator getSeparator() {
 		if (separator == null) {
 			separator = new JSeparator();
 			separator.setBounds(25, 74, 420, 10);
@@ -89,10 +105,15 @@ public class DefaultListPanel extends JPanel {
 			title = new JLabel("Pedido: XXX");
 			title.setBackground(Color.WHITE);
 			title.setVerticalAlignment(SwingConstants.BOTTOM);
-			title.setFont(SystemFont.TITLE);
+			title.setFont(new SystemFont().title);
 			title.setBounds(25, 6, 123, 20);
 		}
 		return title;
+	}
+	
+	public DefaultListPanel setTitle(String content) {
+		getTitle().setText(content);
+		return this;
 	}
 	
 	public JLabel getIndicator() {
@@ -102,5 +123,10 @@ public class DefaultListPanel extends JPanel {
 			indicator.setBounds(8, 7, 16, 16);
 		}
 		return indicator;
+	}
+	
+	public DefaultListPanel activeIndicator(boolean active) {
+		getIndicator().setVisible(active);
+		return this;
 	}
 }
