@@ -188,9 +188,13 @@ public class WarehouseAPP extends JFrame {
 		return scPaneListaPedidos;
 	}
 
-	private void loadPedidosInView() throws ParseException {
-		getScPaneListaPedidos().getViewport().setView(LoadPedidosInContainer
-				.load(new OrderController().getNotAssigned(), getScPaneListaPedidos().getWidth()));
+	private void loadPedidosInView() {
+		try {
+			getScPaneListaPedidos().getViewport().setView(LoadPedidosInContainer
+					.load(new OrderController().getNotAssigned(), getScPaneListaPedidos().getWidth()));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		revalidate();
 		repaint();
 	}
@@ -204,15 +208,9 @@ public class WarehouseAPP extends JFrame {
 					SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
 						@Override
 						protected Void doInBackground() throws Exception {
-							// Here we invoke the method that will change the localization.
-							try {
-								CursorMode.wait(btnEntrar);
-								loadPedidosInView();
-								getPedidosTitleCounter().setText("Pedidos ("+LoadPedidosInContainer.numberOfOrders()+")");
-							} catch (ParseException ex) {
-								// TODO Auto-generated catch block
-								ex.printStackTrace();
-							}
+							CursorMode.wait(btnEntrar);
+							loadPedidosInView();
+							getPedidosTitleCounter().setText("Pedidos ("+LoadPedidosInContainer.numberOfOrders()+")");
 							return null;
 						}
 
