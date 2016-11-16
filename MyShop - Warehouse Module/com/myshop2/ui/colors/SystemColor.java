@@ -13,8 +13,11 @@ public class SystemColor {
 	 * Default light gray.
 	 */
 	public static final String lightGray_code = "#f7f7f7";
+	public static final String lightGrayPanel_code = "#ebebeb";
 	
 	public static final String lineGray_code = "#e3e3e3";
+	
+	public static final String lineDark_code = "#b0b0b0";
 	
 	/**
 	 * Default gray color for text.
@@ -31,6 +34,8 @@ public class SystemColor {
 	 */
 	public static final Color lightGray = Color.decode(lightGray_code);
 	
+	public static final Color lightGrayPanel = Color.decode(lightGrayPanel_code);
+	
 	/**
 	 * Default light gray.
 	 */
@@ -40,4 +45,6 @@ public class SystemColor {
 	 * Default gray for lines.
 	 */
 	public static final Color lineGray = Color.decode(lineGray_code);
+	
+	public static final Color lineDark = Color.decode(lineDark_code);
 }

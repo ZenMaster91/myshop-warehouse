@@ -21,7 +21,7 @@ public class RetinaDisplay {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println("The system does not support retina display.");
 		}
 		return isRetina;
 	}

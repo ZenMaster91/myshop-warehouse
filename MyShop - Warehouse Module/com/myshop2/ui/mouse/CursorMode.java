@@ -1,4 +1,4 @@
-package com.myshop2.ui.cursors;
+package com.myshop2.ui.mouse;
 
 import java.awt.Component;
 import java.awt.Cursor;

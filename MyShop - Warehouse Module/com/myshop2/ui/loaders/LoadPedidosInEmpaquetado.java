@@ -7,23 +7,24 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
+import javax.swing.JLabel;
+
 import com.myshop.model.order.Order;
 import com.myshop.warehouse.controllers.OrderController;
-import com.myshop2.ui.WarehouseAPP;
-import com.myshop2.ui.mouse.MouseAdapterOrderListPanel;
+import com.myshop2.ui.mouse.MouseAdapterOrderEmpaquetadoListPanel;
 import com.myshop2.ui.panels.DefaultListPanel;
 import com.myshop2.ui.panels.FullSimpleMessagePanel;
 
-public class LoadPedidosInContainer {
+public class LoadPedidosInEmpaquetado {
 
 	private static int nOrders = 0;
 
 	public static Container load(List<Order> orders, int width, Container detail, String detailView, Container nextContainer,
-									WarehouseAPP app) { //JLabel id, JLabel fecha, JLabel nArticulos, JLabel peso
+									JLabel id, JLabel fecha, JLabel nArticulos, JLabel peso) {
 		nOrders = 0;
 		Container cont = new Container();
 		if(orders.size()==0) {
-			return new FullSimpleMessagePanel("No hay pedidos");
+			return new FullSimpleMessagePanel("Nada por empaquetar");
 		}
 
 		for (Order o : orders) {
@@ -41,7 +42,7 @@ public class LoadPedidosInContainer {
 			pp.setPreferredSize(new Dimension(width - 5, 80));
 			pp.setMaximumSize(new Dimension(width - 5, 80));
 			pp.setMaximumSize(new Dimension(width - 5, 80));
-			pp.addMouseListener(MouseAdapterOrderListPanel.get(detail, detailView, o, nextContainer, app));
+			pp.addMouseListener(MouseAdapterOrderEmpaquetadoListPanel.get(detail, detailView, o, nextContainer, id, fecha, nArticulos, peso));
 
 			// Adding the panel to the container.
 			cont.add(pp);
@@ -69,14 +70,7 @@ public class LoadPedidosInContainer {
 
 		int size = Math.max(7, cont.getComponentCount());
 		cont.setLayout(new GridLayout(size, 0));
-		
-		updateReferences(app);
 		return cont;
-	}
-	
-	private static void updateReferences(WarehouseAPP app) {
-		app.getPedidosTitleCounter().setText("Pedidos ("+numberOfOrders()+")");
-		app.getLlblPedidosLink().setText("Pedidos ("+LoadPedidosInContainer.numberOfOrders()+")");
 	}
 
 	public static int numberOfOrders() {

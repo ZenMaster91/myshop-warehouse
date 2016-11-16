@@ -80,7 +80,7 @@ public class DefaultListPanel extends JPanel {
 			descLine2 = new JLabel("Peso: 10Kg");
 			descLine2.setBackground(Color.WHITE);
 			descLine2.setForeground(SystemColor.textGray);
-			descLine2.setBounds(25, 50, 334, 22);
+			descLine2.setBounds(25, 50, 343, 22);
 			descLine2.setFont(new SystemFont().description);
 		}
 		return descLine2;
@@ -106,7 +106,7 @@ public class DefaultListPanel extends JPanel {
 			title.setBackground(Color.WHITE);
 			title.setVerticalAlignment(SwingConstants.BOTTOM);
 			title.setFont(new SystemFont().title);
-			title.setBounds(25, 6, 123, 20);
+			title.setBounds(25, 6, 243, 20);
 		}
 		return title;
 	}

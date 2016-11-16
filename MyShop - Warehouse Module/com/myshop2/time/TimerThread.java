@@ -10,14 +10,14 @@ import javax.swing.SwingUtilities;
 public class TimerThread extends Thread {
 
     protected boolean isRunning = true;
-    protected JLabel timeLabel;
+    protected JLabel[] timeLabel;
 
     protected SimpleDateFormat dateFormat = 
             new SimpleDateFormat("EEE, d MMM yyyy");
     protected SimpleDateFormat timeFormat =
             new SimpleDateFormat("HH:mm a");
 
-    public TimerThread(JLabel timeLabel) {
+    public TimerThread(JLabel... timeLabel) {
         this.timeLabel = timeLabel;
         this.isRunning = true;
     }
@@ -30,7 +30,8 @@ public class TimerThread extends Thread {
                 public void run() {
                     Calendar currentCalendar = Calendar.getInstance();
                     Date currentTime = currentCalendar.getTime();
-                    timeLabel.setText(timeFormat.format(currentTime));
+                    for(JLabel label : timeLabel)
+                    	label.setText(timeFormat.format(currentTime));
                 }
             });
 
