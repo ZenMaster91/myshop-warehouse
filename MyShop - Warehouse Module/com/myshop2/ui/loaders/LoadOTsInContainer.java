@@ -20,45 +20,34 @@ public class LoadOTsInContainer {
 	private static int nItems = 0;
 
 	public static Container load(List<WorkingPlanController> workingPlans, WarehouseAPP app) {
-		System.out.println("WPLoad_1");
 		nItems = 0;
 		Container cont = new Container();
 		if(workingPlans.size()==0) {
+			updateReferences(app);
 			return new FullSimpleMessagePanel("No hay OTs pendientes");
 		}
-		System.out.println("WPLoad_2");
 		for(WorkingPlanController wpc : workingPlans) {
-			System.out.println("WPLoad_2.1");
 			WorkingPlan wp = wpc.getWp();
-			System.out.println("WPLoad_2.2");
 			DefaultListPanel pp = new DefaultListPanel();
-			System.out.println("WPLoad_2.3");
 			System.out.println("OT " + wp.getID() + " Loaded in panel." + wp.getItems().size() + " " + new WorkingPlanController(wp).getTotalWeight() + " " +wp.getItems().size());
 
 			// Set values according with the order.
 			SimpleDateFormat df = new SimpleDateFormat("MMMM dd, HH:mm aa", new Locale("es", "ES"));
-			System.out.println("WPLoad_2.4");
 			pp.setTitle("ID: " + wp.getID())
-				.setDateInfo(df.format(new Date()))
+				.setDateInfo(df.format(new Date())) //REMEMBER TO CHANGE THE DATE.
 				.setDescLine1("Nº Objetos: " + wp.getItems().size() + " Peso: " + new WorkingPlanController(wp).getTotalWeight() + " Kg.")
-				.setDescLine2("Nº Pedidos: " + wp.getItems().size())
+				.setDescLine2("Nº Pedidos: " + wp.getItems().size() + "(" + wp.getItems().get(0).getOrderItem().getParent().getID() + ")")
 				.activeIndicator(true);
-			System.out.println("WPLoad_2.5");
 
 			// Setting the size of the panel inside the list.
 			pp.setPreferredSize(new Dimension(app.getScPaneOTs().getWidth() - 5, 80));
 			pp.setMaximumSize(new Dimension(app.getScPaneOTs().getWidth() - 5, 80));
 			pp.setMaximumSize(new Dimension(app.getScPaneOTs().getWidth() - 5, 80));
-			System.out.println("WPLoad_2.6");
 			
 			pp.addMouseListener(MouseAdapterWorkingPlanListPanel.get(wp, app));
-			System.out.println("WPLoad_2.7");
-
 			// Adding the panel to the container.
 			cont.add(pp);
-			System.out.println("WPLoad_2.8");
 			nItems++;
-			System.out.println("WPLoad_2.9");
 		}
 		System.out.println("WPLoad_3");
 		for (int i = cont.getComponentCount(); i < 7; i++) {
@@ -79,18 +68,22 @@ public class LoadOTsInContainer {
 			// Adding the panel to the container.
 			cont.add(pp);
 		}
-		System.out.println("WPLoad_4");
+		
 		int size = Math.max(7, cont.getComponentCount());
 		cont.setLayout(new GridLayout(size, 0));
-		System.out.println("WPLoad_5");
+
 		updateReferences(app);
-		System.out.println("WPLoad_6");
 		return cont;
 	}
 	
 	private static void updateReferences(WarehouseAPP app) {
-		app.getLblOrdenes().setText("Órdenes de Trabajo ("+nItems()+")");
-		app.getLblOts().setText("OTs ("+nItems()+")");
+		if(nItems > 0) {
+			app.getLblOrdenes().setText("Órdenes de Trabajo ("+nItems()+")");
+			app.getLblOts().setText("OTs ("+nItems()+")");
+		} else {
+			app.getLblOrdenes().setText("Órdenes de Trabajo");
+			app.getLblOts().setText("OTs");
+		}
 	}
 
 	public static int nItems() {

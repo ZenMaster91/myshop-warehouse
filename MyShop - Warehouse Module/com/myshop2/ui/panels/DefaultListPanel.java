@@ -45,7 +45,7 @@ public class DefaultListPanel extends JPanel {
 			dateMoreInfo.setFont(new SystemFont().date);
 			dateMoreInfo.setHorizontalTextPosition(SwingConstants.LEFT);
 			dateMoreInfo.setIcon(
-					new ImageIcon(DefaultListPanel.class.getResource("/com/myshop2/ui/icons/Next.png")));
+					new ImageIcon(DefaultListPanel.class.getResource("/com/myshop2/ui/icons/next-small.png")));
 			dateMoreInfo.setBackground(Color.WHITE);
 			dateMoreInfo.setForeground(SystemColor.textGray);
 			dateMoreInfo.setHorizontalAlignment(SwingConstants.RIGHT);

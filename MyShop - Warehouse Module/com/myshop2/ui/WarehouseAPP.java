@@ -1,6 +1,7 @@
 package com.myshop2.ui;
 
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.text.ParseException;
 
 import javax.swing.JFrame;
@@ -29,13 +30,13 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.JScrollPane;
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JTextField;
 import javax.swing.ImageIcon;
 import javax.swing.border.MatteBorder;
+
+import org.jdesktop.xswingx.PromptSupport;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JCheckBox;
@@ -58,7 +59,6 @@ public class WarehouseAPP extends JFrame {
 	public JPanel VistaEmpaquetadoIndividual;
 	public JLabel lblInicioDeLa;
 	public JScrollPane scPaneListaPedidos;
-	public JButton btnEntrar;
 	public JPanel navigationBar;
 	public JLabel time;
 	public JLabel pedidosTitleCounter;
@@ -131,6 +131,7 @@ public class WarehouseAPP extends JFrame {
 	public JPanel feedback;
 	public JLabel lblNewLabel;
 	public JPanel panel_10;
+	private JLabel lblEntrar;
 
 	/**
 	 * Launch the application.
@@ -158,7 +159,7 @@ public class WarehouseAPP extends JFrame {
 						getTimePedidoIndv(),
 						getTimeOts(),
 						getTimeEmpaquetado()).start();
-		
+		promptSupport();
 		setBackground(Color.WHITE);
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -183,9 +184,9 @@ public class WarehouseAPP extends JFrame {
 			Inicio.setBackground(Color.WHITE);
 			Inicio.setLayout(null);
 			Inicio.add(getLblInicioDeLa());
-			Inicio.add(getBtnEntrar());
 			Inicio.add(getTxtIdAlmacenero());
 			Inicio.add(getLblIdAlmacenero());
+			Inicio.add(getLblEntrar());
 		}
 		return Inicio;
 	}
@@ -336,42 +337,6 @@ public class WarehouseAPP extends JFrame {
 			e.printStackTrace();
 		}
 	}
-	
-	public JButton getBtnEntrar() {
-		if (btnEntrar == null) {
-			btnEntrar = new JButton("Entrar");
-			btnEntrar.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					
-					SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
-						@Override
-						protected Void doInBackground() throws Exception {
-							CursorMode.wait(btnEntrar);
-							loadPedidosInView();
-							if(LoadPedidosInContainer.numberOfOrders()>0) {
-								getPedidosTitleCounter().setText("Pedidos ("+LoadPedidosInContainer.numberOfOrders()+")");
-								getLlblPedidosLink().setText("Pedidos ("+LoadPedidosInContainer.numberOfOrders()+")");
-							} else {
-								getPedidosTitleCounter().setText("Pedidos");
-								getLlblPedidosLink().setText("Pedidos");
-							}
-							return null;
-						}
-
-						@Override
-						protected void done() {
-							CursorMode.normal(btnEntrar);
-							((CardLayout) getContentPane().getLayout()).show(getContentPane(), "vistaListaPedidos");
-						}
-					};
-
-					sw.execute(); // this will start the processing on a separate thread
-				}
-			});
-			btnEntrar.setBounds(129, 340, 117, 29);
-		}
-		return btnEntrar;
-	}
 
 	public JPanel getNavigationBar() {
 		if (navigationBar == null) {
@@ -407,6 +372,7 @@ public class WarehouseAPP extends JFrame {
 	public JTextField getTxtIdAlmacenero() {
 		if (txtIdAlmacenero == null) {
 			txtIdAlmacenero = new JTextField();
+			txtIdAlmacenero.setBorder(new MatteBorder(0, 0, 1, 0, (Color) new Color(0, 0, 0)));
 			txtIdAlmacenero.setHorizontalAlignment(SwingConstants.CENTER);
 			txtIdAlmacenero.setBounds(44, 302, 286, 26);
 			txtIdAlmacenero.setColumns(10);
@@ -1072,5 +1038,53 @@ public class WarehouseAPP extends JFrame {
 			lblNewLabel.setFont(new SystemFont().mediumText);
 		}
 		return lblNewLabel;
+	}
+	
+	public JLabel getLblEntrar() {
+		if (lblEntrar == null) {
+			lblEntrar = new JLabel("Entrar");
+			lblEntrar.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
+						@Override
+						protected Void doInBackground() throws Exception {
+							CursorMode.wait(lblEntrar);
+							loadPedidosInView();
+							if(LoadPedidosInContainer.numberOfOrders()>0) {
+								getPedidosTitleCounter().setText("Pedidos ("+LoadPedidosInContainer.numberOfOrders()+")");
+								getLlblPedidosLink().setText("Pedidos ("+LoadPedidosInContainer.numberOfOrders()+")");
+							} else {
+								getPedidosTitleCounter().setText("Pedidos");
+								getLlblPedidosLink().setText("Pedidos");
+							}
+							return null;
+						}
+
+						@Override
+						protected void done() {
+							CursorMode.normal(lblEntrar);
+							((CardLayout) getContentPane().getLayout()).show(getContentPane(), "vistaListaPedidos");
+						}
+					};
+
+					sw.execute(); // this will start the processing on a separate thread
+				}
+			});
+			lblEntrar.setHorizontalTextPosition(SwingConstants.LEADING);
+			lblEntrar.setIcon(new ImageIcon(WarehouseAPP.class.getResource("/com/myshop2/ui/icons/next-selected.png")));
+			lblEntrar.setHorizontalAlignment(SwingConstants.CENTER);
+			lblEntrar.setBounds(129, 329, 117, 36);
+			lblEntrar.setFont(new SystemFont().backButton);
+			lblEntrar.setForeground(SystemColor.blue);
+			
+		}
+		return lblEntrar;
+	}
+	
+	private void promptSupport() {
+		PromptSupport.setPrompt("ID Almacenero", getTxtIdAlmacenero());
+		PromptSupport.setFocusBehavior(PromptSupport.FocusBehavior.SHOW_PROMPT, getTxtIdAlmacenero());
+		PromptSupport.setFontStyle(Font.PLAIN, getTxtIdAlmacenero());
 	}
 }

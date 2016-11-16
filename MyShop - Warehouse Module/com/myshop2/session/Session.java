@@ -2,7 +2,6 @@ package com.myshop2.session;
 
 import java.util.List;
 
-import com.myshop.model.order.Order;
 import com.myshop.model.warehouseKeeper.WarehouseKeeper;
 import com.myshop.warehouse.controllers.WarehouseKeeperController;
 import com.myshop.warehouse.controllers.WorkingPlanController;
@@ -10,7 +9,6 @@ import com.myshop.warehouse.controllers.WorkingPlanController;
 public class Session {
 	
 	public static WarehouseKeeper almacenero = new WarehouseKeeper(1, "Pepe", "Suarez Rodriguez");
-	public static Order order;
 	public static boolean isAlmaceneroOccupied = false;
 	
 	public static List<WorkingPlanController> getWorkingPlans() {
