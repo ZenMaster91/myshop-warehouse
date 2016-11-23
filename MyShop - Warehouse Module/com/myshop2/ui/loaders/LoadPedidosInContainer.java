@@ -12,6 +12,7 @@ import com.myshop.warehouse.controllers.OrderController;
 import com.myshop2.ui.WarehouseAPP;
 import com.myshop2.ui.mouse.MouseAdapterOrderListPanel;
 import com.myshop2.ui.panels.DefaultListPanel;
+import com.myshop2.ui.panels.DefaultListPanelSmall;
 import com.myshop2.ui.panels.FullSimpleMessagePanel;
 
 public class LoadPedidosInContainer {
@@ -27,20 +28,24 @@ public class LoadPedidosInContainer {
 		}
 
 		for (Order o : orders) {
-			DefaultListPanel pp = new DefaultListPanel();
+			DefaultListPanelSmall pp = new DefaultListPanelSmall();
 
 			// Set values according with the order.
-			SimpleDateFormat df = new SimpleDateFormat("MMMM dd, HH:mm aa", new Locale("es", "ES"));
-			pp.setTitle("Pedido: " + o.getID())
+			SimpleDateFormat df = new SimpleDateFormat("MMM dd, HH:mm aa", new Locale("es", "ES"));
+			String aux = "";
+			if(new OrderController(o).getNumberOfItems() > 1)
+				aux = " objetos.";
+			else 
+				aux = " objeto.";
+			pp.setTitle("PE." + o.getID())
 				.setDateInfo(df.format(o.getDateReceived()))
-				.setDescLine1("Nº Objetos: " + new OrderController(o).getNumberOfItems())
-				.setDescLine2("Peso: " + new OrderController().getWeight(o) + " Kg")
+				.setDescLine1(new OrderController(o).getNumberOfItems() + aux)
 				.activeIndicator(false);
 
 			// Setting the size of the panel inside the list.
-			pp.setPreferredSize(new Dimension(width - 5, 80));
-			pp.setMaximumSize(new Dimension(width - 5, 80));
-			pp.setMaximumSize(new Dimension(width - 5, 80));
+			pp.setPreferredSize(new Dimension(width - 5, 44));
+			pp.setMaximumSize(new Dimension(width - 5, 44));
+			pp.setMaximumSize(new Dimension(width - 5, 44));
 			pp.addMouseListener(MouseAdapterOrderListPanel.get(detail, detailView, o, nextContainer, app));
 
 			// Adding the panel to the container.
@@ -48,26 +53,25 @@ public class LoadPedidosInContainer {
 			nOrders++;
 		}
 
-		for (int i = cont.getComponentCount(); i < 7; i++) {
-			DefaultListPanel pp = new DefaultListPanel();
+		for (int i = cont.getComponentCount(); i < 9; i++) {
+			DefaultListPanelSmall pp = new DefaultListPanelSmall();
 
 			// Set values according with the order.
 			pp.getTitle().setVisible(false);
 			pp.getDateMoreInfo().setVisible(false);
 			pp.getDescLine1().setVisible(false);
-			pp.getDescLine2().setVisible(false);
 			pp.getIndicator().setVisible(false);
 
 			// Setting the size of the panel inside the list.
-			pp.setPreferredSize(new Dimension(width - 5, 80));
-			pp.setMaximumSize(new Dimension(width - 5, 80));
-			pp.setMaximumSize(new Dimension(width - 5, 80));
+			pp.setPreferredSize(new Dimension(width - 5, 44));
+			pp.setMaximumSize(new Dimension(width - 5, 44));
+			pp.setMaximumSize(new Dimension(width - 5, 44));
 
 			// Adding the panel to the container.
 			cont.add(pp);
 		}
 
-		int size = Math.max(7, cont.getComponentCount());
+		int size = Math.max(9, cont.getComponentCount());
 		cont.setLayout(new GridLayout(size, 0));
 		
 		updateReferences(app);

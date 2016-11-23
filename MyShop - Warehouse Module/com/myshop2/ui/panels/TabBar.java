@@ -31,7 +31,7 @@ public class TabBar extends JPanel {
 		add(getEmpaquetado());
 		add(getEnvios());
 		super.setBackground(SystemColor.lightGray);
-		super.setBounds(0, 596, 375, 49);
+		super.setBounds(0, 459, 375, 49);
 		super.setBorder(new MatteBorder(1, 0, 0, 0, (Color) SystemColor.lineGray));
 	}
 	

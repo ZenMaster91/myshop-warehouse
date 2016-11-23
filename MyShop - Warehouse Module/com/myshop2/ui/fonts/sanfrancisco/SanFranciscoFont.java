@@ -95,7 +95,6 @@ public class SanFranciscoFont {
 		     ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(PATH+"SF-UI-Display-Regular.otf")));
 		     ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(PATH+"SF-UI-Text-Medium.otf")));
 		     ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(PATH+"SF-UI-Text-Regular.otf")));
-		     
 		} catch (IOException|FontFormatException e) {
 		     System.out.print(e.getMessage());
 		}

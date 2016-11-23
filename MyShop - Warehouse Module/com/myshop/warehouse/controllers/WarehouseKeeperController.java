@@ -17,6 +17,7 @@ import com.myshop.model.product.Side;
 import com.myshop.model.warehouseKeeper.WarehouseKeeper;
 import com.myshop.model.workingPlan.WorkingPlanItem;
 import com.myshop.warehouse.util.DefaultSql2o;
+import com.myshop2.sql.QueryLoader;
 
 public class WarehouseKeeperController {
 
@@ -37,21 +38,9 @@ public class WarehouseKeeperController {
 
 	public List<WorkingPlanController> getCurrentWorkingPlan(WarehouseKeeper wk) {
 		List<WorkingPlanController> toReturn = new ArrayList<WorkingPlanController>();
-		String complexSQL = "SELECT  p.corridor, p.position, p.height, p.side, p.product_id, wp.wp_id, "
-				+ "p.stock, p.name, p.description as 'p_desc', p.weight, p.price, o.order_id, p.company_price, "
-				+ "p.category, i.incidence_id, i.description as 'i_desc', i.solved, oi.mail_box_id, oi.order_item_id, s.name AS 'status', "
-				+ "oi.quantity, wpi.collected " + "FROM myshop.working_plan AS wp "
-				+ "LEFT JOIN myshop.working_plan_item AS wpi ON wp.wp_id = wpi.wp_id "
-				+ "LEFT JOIN myshop.order_item AS oi ON wpi.order_item_id = oi.order_item_id "
-				+ "LEFT JOIN myshop.order AS o ON oi.order_id = o.order_id "
-				+ "LEFT JOIN myshop.status AS s ON s.status_id = o.status_id "
-				+ "LEFT JOIN myshop.full_products as p on oi.product_id=p.product_id "
-				+ "LEFT JOIN myshop.incidence as i on oi.incidence_id=i.incidence_id "
-				+ "WHERE wk_id = :id AND collected = 0 ORDER BY wp.wp_id";
-
 		List<Map<String, Object>> map = null;
 		try (Connection con = DefaultSql2o.SQL2O.open()) {
-			map = con.createQuery(complexSQL).addParameter("id", wk.getID()).executeAndFetchTable().asList();
+			map = con.createQuery(QueryLoader.load("CurrentWorkingPlan.sql")).addParameter("id", wk.getID()).executeAndFetchTable().asList();
 		}
 		OrderItem oi;
 		Product p;
@@ -60,7 +49,6 @@ public class WarehouseKeeperController {
 		MailBox mB;
 		WorkingPlanController wpc = null;
 		int lastWpID = -1, nItem = 0;
-
 		for (Map<String, Object> m : map) {
 			if (nItem == 0) {
 				lastWpID = (int) m.get("wp_id");
@@ -84,7 +72,7 @@ public class WarehouseKeeperController {
 			System.out.println(p.getID() + " " + p.getName() + " processed.");
 
 			if (m.get("incidence_id") != null) {
-				i = new Incidence((int) m.get("incidence_id"), (String) m.get("i_desc"), (boolean) m.get("solved"));
+				i = new Incidence((int)m.get("incidence_id"), (String) m.get("i_desc")).setSolve((boolean) m.get("solved"));
 			} else {
 				i = null;
 			}

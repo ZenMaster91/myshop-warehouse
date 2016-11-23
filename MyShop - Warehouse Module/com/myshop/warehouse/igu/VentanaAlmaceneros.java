@@ -1115,7 +1115,7 @@ public class VentanaAlmaceneros extends JFrame {
 			System.out.println("Order: " + o.getID() + " Product: " + oi.getProductID());
 			if (oi.getMailbox() != null) {
 				modeloTablaEmpaquetarPedido.addRow(new OrderItemController(oi), oi.getProductID(), oi.getQuantity(),
-						false, oi.getMailBoxID());
+						false, oi.getMailbox().getID());
 			} else {
 				modeloTablaEmpaquetarPedido.addRow(new OrderItemController(oi), oi.getProductID(), oi.getQuantity(),
 						false, " - ");
@@ -1129,7 +1129,7 @@ public class VentanaAlmaceneros extends JFrame {
 		for (OrderItem oi : currentOrder.getProducts()) {
 			if (oi.getMailbox() != null) {
 				modeloTablaEmpaquetarPedido.addRow(new OrderItemController(oi), oi.getProductID(), oi.getQuantity(),
-						false, oi.getMailBoxID());
+						false, oi.getMailbox().getID());
 			} else {
 				modeloTablaEmpaquetarPedido.addRow(new OrderItemController(oi), oi.getProductID(), oi.getQuantity(),
 						false, " - ");
@@ -1265,7 +1265,7 @@ public class VentanaAlmaceneros extends JFrame {
 				@Override
 				public void mousePressed(MouseEvent e) {
 					lblFianlizar.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-					currentOrder.setStatus(Status.FINALIZADO.toString().toUpperCase());
+					currentOrder.setStatus(Status.ENVIADO.toString().toUpperCase());
 					new OrderController(currentOrder).finalize();
 					((CardLayout) (getPanel().getLayout())).show(getPanel(), "opciones");
 					try {

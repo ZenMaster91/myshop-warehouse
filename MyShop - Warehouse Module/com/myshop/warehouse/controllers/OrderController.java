@@ -21,6 +21,7 @@ import com.myshop.model.order.MailBox;
 import com.myshop.model.order.Order;
 import com.myshop.model.order.OrderItem;
 import com.myshop.model.product.Category;
+import com.myshop.model.product.Dimension3D;
 import com.myshop.model.product.Product;
 import com.myshop.model.product.ProductLocation;
 import com.myshop.model.product.Side;
@@ -66,14 +67,14 @@ public class OrderController implements Comparable<OrderController> {
 		for (Map<String, Object> m : map) {
 			if (((int) m.get("order_id")) != last) {
 				if (o.getProducts().size() > 0) {
-					 //System.out.println("Orden no asignada: " + o.getID() + " con " + o.getProducts().size() + " prod.");
+					 System.out.println("Orden no asignada: " + o.getID() + " con " + o.getProducts().size() + " prod.");
 					aux.add(o);
 				}
 				o = new Order();
 				o.setID((int) m.get("order_id"));
 				Customer c;
 				if (m.get("company_name") == null) {
-					c = new IndividualCustomer((String) m.get("individual_name"), (String) m.get("individual_surname"),
+					c = new IndividualCustomer(-1, (String) m.get("individual_name"), (String) m.get("individual_surname"),
 							new User(-1, (String) m.get("indivdual_username"), (String) m.get("individual_password")),
 							new Address((String) m.get("street"), (String) m.get("city"), (String) m.get("state"),
 									(String) m.get("zip_code")),
@@ -81,7 +82,8 @@ public class OrderController implements Comparable<OrderController> {
 									(java.sql.Date) m.get("credit_card_exp_date")));
 				} else {
 					c = new Company(-1, (String) m.get("company_name"),
-							new User(-1, (String) m.get("company_username"), (String) m.get("company_password")));
+							new User(-1, (String) m.get("company_username"), (String) m.get("company_password")), new Address((String) m.get("street"), (String) m.get("city"), (String) m.get("state"),
+									(String) m.get("zip_code")));
 				}
 				o.setCustomer(c);
 			}
@@ -94,6 +96,7 @@ public class OrderController implements Comparable<OrderController> {
 			Product p = new Product((int) m.get("product_id"), (int) m.get("stock"), (String) m.get("name"),
 					(String) m.get("description"), (double) m.get("weight"), (double) m.get("price"), c, c, pl,
 					(double) m.get("company_price"));
+			p.setDimensions(new Dimension3D((double) m.get("heigth"), (double) m.get("weigth"), (double) m.get("deep")));
 			// System.out.println("Producto " + p.getID() + " procesado");
 
 			OrderItem oi = new OrderItem((int) m.get("order_item_id"), (int) m.get("quantity"), p, null, null);
@@ -140,7 +143,7 @@ public class OrderController implements Comparable<OrderController> {
 				o.setID((int) m.get("order_id"));
 				Customer c;
 				if (m.get("company_name") == null) {
-					c = new IndividualCustomer((String) m.get("individual_name"), (String) m.get("individual_surname"),
+					c = new IndividualCustomer(-1,(String) m.get("individual_name"), (String) m.get("individual_surname"),
 							new User(-1, (String) m.get("indivdual_username"), (String) m.get("individual_password")),
 							new Address((String) m.get("street"), (String) m.get("city"), (String) m.get("state"),
 									(String) m.get("zip_code")),
@@ -148,7 +151,8 @@ public class OrderController implements Comparable<OrderController> {
 									(java.sql.Date) m.get("credit_card_exp_date")));
 				} else {
 					c = new Company(-1, (String) m.get("company_name"),
-							new User(-1, (String) m.get("company_username"), (String) m.get("company_password")));
+							new User(-1, (String) m.get("company_username"), (String) m.get("company_password")), new Address((String) m.get("street"), (String) m.get("city"), (String) m.get("state"),
+									(String) m.get("zip_code")));
 				}
 				o.setCustomer(c);
 			}
@@ -167,7 +171,7 @@ public class OrderController implements Comparable<OrderController> {
 			MailBox mb = null;
 			
 			if(m.get("incidence_id") != null) {
-				i = new Incidence((int) m.get("incidence_id"), (String) m.get("incidence"), (boolean) m.get("incidence_solved"));
+				i = new Incidence((int)m.get("incidence_id"), (String) m.get("incidence")).setSolve((boolean) m.get("incidence_solved"));
 			}
 			
 			if(m.get("mail_box") != null) {
@@ -258,6 +262,14 @@ public class OrderController implements Comparable<OrderController> {
 		try(Connection con = DefaultSql2o.SQL2O.open()) {
 			con.createQuery(sql).addParameter("oID", o.getID()).executeUpdate();
 		}
+	}
+	
+	public double getVolume() {
+		double vol = 0.0;
+		for(OrderItem oi : o.getProducts()) {
+			vol+=oi.getProduct().getDimensions().calculateVolume();
+		}
+		return vol;
 	}
 
 }

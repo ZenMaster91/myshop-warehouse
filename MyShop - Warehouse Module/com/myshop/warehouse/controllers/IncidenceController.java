@@ -32,11 +32,11 @@ public class IncidenceController {
 				con.createQuery(sql).addParameter("incID", incidenceID).addParameter("oiID", oi.getID()).executeUpdate();
 			}
 			if(oi.getIncidence()== null) {
-				oi.setIncidence(new Incidence(incidenceID, description, false));
+				oi.setIncidence(new Incidence(incidenceID, description).setSolve(false));
 				updateIncidenceStatus(false);
 				oi.getParent().setStatus(Status.INCIDENCIA.toString().toUpperCase());
 			} else {
-				oi.setIncidence(new Incidence(incidenceID, description, oi.getIncidence().isSolve()));
+				oi.setIncidence(new Incidence(incidenceID, description).setSolve(oi.getIncidence().isSolve()));
 				updateIncidenceStatus(oi.getIncidence().isSolve());
 			}
 		} else {
@@ -52,7 +52,7 @@ public class IncidenceController {
 		String sql = "UPDATE myshop.incidence SET myshop.incidence.solved = :solved WHERE incidence_id = :incidence_id";
 		int s = (solved) ? 1 : 0;
 		try(Connection con = DefaultSql2o.SQL2O.open()) {
-			con.createQuery(sql).addParameter("solved", s).addParameter("incidence_id", oi.getIncidenceID()).executeUpdate();
+			con.createQuery(sql).addParameter("solved", s).addParameter("incidence_id", oi.getIncidence().getID()).executeUpdate();
 			oi.getIncidence().setSolve(solved);
 		}
 		if(solved) {

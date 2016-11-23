@@ -1,5 +1,7 @@
 package com.myshop2.maths;
 
+import com.myshop.warehouse.generators.WorkingPlanGenerator;
+
 public class FactorEstiba {
 	
 	private double vol, weight;
@@ -9,8 +11,14 @@ public class FactorEstiba {
 		this.weight = weight;
 	}
 	
+	public boolean validate() {
+		if(this.weight < WorkingPlanGenerator.MAX_WP_LOAD && this.vol/1000000 < WorkingPlanGenerator.MAX_WP_VOL)
+			return true;
+		return false;
+	}
+	
 	public double calculate() {
-		return (vol/weight);
+		return ((vol)/weight);
 	}
 
 }

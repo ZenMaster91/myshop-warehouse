@@ -12,7 +12,7 @@ import javax.swing.JLabel;
 import com.myshop.model.order.Order;
 import com.myshop.warehouse.controllers.OrderController;
 import com.myshop2.ui.mouse.MouseAdapterOrderEmpaquetadoListPanel;
-import com.myshop2.ui.panels.DefaultListPanel;
+import com.myshop2.ui.panels.DefaultListPanelSmall;
 import com.myshop2.ui.panels.FullSimpleMessagePanel;
 
 public class LoadPedidosInEmpaquetado {
@@ -28,7 +28,7 @@ public class LoadPedidosInEmpaquetado {
 		}
 
 		for (Order o : orders) {
-			DefaultListPanel pp = new DefaultListPanel();
+			DefaultListPanelSmall pp = new DefaultListPanelSmall();
 
 			// Set values according with the order.
 			SimpleDateFormat df = new SimpleDateFormat("MMMM dd, HH:mm aa", new Locale("es", "ES"));
@@ -49,14 +49,13 @@ public class LoadPedidosInEmpaquetado {
 			nOrders++;
 		}
 
-		for (int i = cont.getComponentCount(); i < 7; i++) {
-			DefaultListPanel pp = new DefaultListPanel();
+		for (int i = cont.getComponentCount(); i < 14; i++) {
+			DefaultListPanelSmall pp = new DefaultListPanelSmall();
 
 			// Set values according with the order.
 			pp.getTitle().setVisible(false);
 			pp.getDateMoreInfo().setVisible(false);
 			pp.getDescLine1().setVisible(false);
-			pp.getDescLine2().setVisible(false);
 			pp.getIndicator().setVisible(false);
 
 			// Setting the size of the panel inside the list.
@@ -68,7 +67,7 @@ public class LoadPedidosInEmpaquetado {
 			cont.add(pp);
 		}
 
-		int size = Math.max(7, cont.getComponentCount());
+		int size = Math.max(14, cont.getComponentCount());
 		cont.setLayout(new GridLayout(size, 0));
 		return cont;
 	}

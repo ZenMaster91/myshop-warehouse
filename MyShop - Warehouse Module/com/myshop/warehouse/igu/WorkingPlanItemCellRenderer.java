@@ -30,7 +30,7 @@ public class WorkingPlanItemCellRenderer extends DefaultTableCellRenderer {
         }
         WorkingPlanItemController wpi = model.getObjectAtRow(row);
      
-        if(wpi.getWPI().getOrderItem().getIncidence()!=null && wpi.getWPI().getOrderItem().isIncidenceSolve()!=true) {
+        if(wpi.getWPI().getOrderItem().getIncidence()!=null && wpi.getWPI().getOrderItem().getIncidence().isSolve()!=true) {
         	c.setBackground(Color.decode("#FFDB4C"));
         	c.setForeground(Color.BLACK);
         	if(isSelected) {

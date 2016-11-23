@@ -27,7 +27,7 @@ public class FullSimpleMessagePanel extends JPanel {
 		if (lblNoHayPedidos == null) {
 			lblNoHayPedidos = new JLabel("No hay Pedidos");
 			lblNoHayPedidos.setHorizontalAlignment(SwingConstants.CENTER);
-			lblNoHayPedidos.setBounds(6, 218, 363, 96);
+			lblNoHayPedidos.setBounds(6, 145, 363, 96);
 			lblNoHayPedidos.setFont(new SystemFont().bigLabel);
 			lblNoHayPedidos.setForeground(SystemColor.textGray);
 		}

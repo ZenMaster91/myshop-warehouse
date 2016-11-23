@@ -15,7 +15,7 @@ public class ProductLocationGenerator implements Generator {
 	public Object generate() {
 		int cor = 1, sid = 2, pos = 1, hei = 1;
 		for (int i = 31; i <= 231; i++) {
-			System.out.println(i + "," + cor + "," + sid + "," + pos + "," + hei);
+			System.out.println((i+231) + "," + cor + "," + sid + "," + pos + "," + hei);
 		
 			if (hei == HEIGTH) {
 				hei = 1;

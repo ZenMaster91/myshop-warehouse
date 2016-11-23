@@ -27,7 +27,7 @@ public class LoadDetallesWorkingPlan {
 								+ "  Posición: " + oi.getProductProductLocationPosition()
 								+ "  Altura: " + oi.getProductProductLocationHeight())
 					.setDescLine2("Peso: " + oi.getProductWeight() + " Kg  Dimensiones: ")
-					.activeIndicator(oi.getIncidence()!=null && oi.isIncidenceSolve()!=true);
+					.activeIndicator(oi.getIncidence()!=null && oi.getIncidence().isSolve()!=true);
 
 			// Setting the size of the panel inside the list.
 			pp.setPreferredSize(new Dimension(width - 5, 80));

@@ -13,6 +13,7 @@ import com.myshop.model.warehouseKeeper.WarehouseKeeper;
 import com.myshop.model.workingPlan.WorkingPlan;
 import com.myshop.model.workingPlan.WorkingPlanItem;
 import com.myshop.warehouse.util.DefaultSql2o;
+import com.myshop2.sql.QueryLoader;
 
 public class WorkingPlanController implements Comparable<WorkingPlanController> {
 
@@ -111,6 +112,18 @@ public class WorkingPlanController implements Comparable<WorkingPlanController> 
 		}
 		return weight;
 	}
+	
+	/**
+	 * @return the total volume of the order.
+	 */
+	public double getTotalVolume() {
+		double volume = 0.0;
+		for (WorkingPlanItem wpi : this.wp.getItems()) {
+			OrderItem oi = wpi.getOrderItem();
+			volume += oi.getProduct().getDimensions().calculateVolume();
+		}
+		return volume;
+	}
 
 	/**
 	 * @return the splitted
@@ -147,11 +160,18 @@ public class WorkingPlanController implements Comparable<WorkingPlanController> 
 	public int compareTo(WorkingPlanController o) {
 		return ((Integer) this.wp.hashCode()).compareTo(o.getWp().hashCode());
 	}
+	
+	public static void assignWK(WarehouseKeeper wk, WorkingPlanController... wpcs) {
+		for(WorkingPlanController wpc : wpcs) {
+			assign(wpc, wk);
+		}
+	}
 
 	public static void assign(WorkingPlanController wpc, WarehouseKeeper almacenero) {
 
 		// WorkingPlan wp = new WorkingPlan(-1, almacenero, wpc.getItems());
 		wpc.assignWareHouseKeeper(almacenero);
+		System.out.println("WPC has: " + wpc.getItems().size() + " Items");
 		wpc.getItems().get(0).getOrderItem().getParent().setStatus(Status.PREPARANDO.toString().toUpperCase());
 		String updateStatus = "UPDATE myshop.order SET myshop.order.status_id=2 WHERE myshop.order.order_id = :order_id";
 		
@@ -167,7 +187,7 @@ public class WorkingPlanController implements Comparable<WorkingPlanController> 
 			wp_id = (int) (long) con.createQuery(insertWorkingPlan, true).addParameter("wk_id", almacenero.getID())
 					.executeUpdate().getKey();
 		}
-		String insertWorkingPlanItem = "INSERT INTO myshop.working_plan_item (order_item_id, wp_id, collected) VALUES (:oi_id, :wp_id, :col)";
+		String insertWorkingPlanItem = "UPDATE myshop.order_item SET myshop.order_item.working_plan_id = :wp_id, myshop.order_item.collected = :col WHERE myshop.order_item.order_item_id = :oi_id";
 		try (Connection con = DefaultSql2o.SQL2O.beginTransaction()) {
 			Query query = con.createQuery(insertWorkingPlanItem);
 
@@ -202,6 +222,12 @@ public class WorkingPlanController implements Comparable<WorkingPlanController> 
 
 	public void print() {
 		System.out.println("WorkingPlanController: " + this.getWp().getID() + ". With: " + this.getChilds().size() + " children. And parent id: " + this.getParent() + " Nº Products: " +this.getNumberOfItems() + " and Weight: " +this.getTotalWeight());
+	}
+	
+	public List<WorkingPlanController> toList() {
+		List<WorkingPlanController> aux = new ArrayList<WorkingPlanController>();
+		aux.add(this);
+		return aux;
 	}
 
 }

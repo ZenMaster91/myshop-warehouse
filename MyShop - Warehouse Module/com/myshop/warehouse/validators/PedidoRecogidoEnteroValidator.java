@@ -32,7 +32,7 @@ public class PedidoRecogidoEnteroValidator implements Validator {
 						return false;
 				}
 			}
-			wpc.getWp().getItems().get(0).getOrderItem().getParent().setStatus(Status.PENDIENTE_EMPAQUETADO.toString().toUpperCase());
+			wpc.getWp().getItems().get(0).getOrderItem().getParent().setStatus(Status.PREPARADO.toString().toUpperCase());
 			String setPendienteEmpaquetado = "UPDATE myshop.order SET myshop.order.status_id=3 WHERE myshop.order.order_id = :order_id";
 			try(Connection con = DefaultSql2o.SQL2O.open()) {
 				Query query = con.createQuery(setPendienteEmpaquetado);

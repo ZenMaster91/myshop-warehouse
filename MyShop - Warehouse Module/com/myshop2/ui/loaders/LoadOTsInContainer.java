@@ -80,9 +80,11 @@ public class LoadOTsInContainer {
 		if(nItems > 0) {
 			app.getLblOrdenes().setText("Órdenes de Trabajo ("+nItems()+")");
 			app.getLblOts().setText("OTs ("+nItems()+")");
+			app.getLblGenerarOt().setEnabled(true);
 		} else {
 			app.getLblOrdenes().setText("Órdenes de Trabajo");
 			app.getLblOts().setText("OTs");
+			app.getLblGenerarOt().setEnabled(false);
 		}
 	}
 
