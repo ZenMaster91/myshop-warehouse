@@ -97,7 +97,8 @@ public class TabBar extends JPanel {
 		}
 		return empaquetado;
 	}
-	private JLabel getEnvios() {
+	
+	public JLabel getEnvios() {
 		if (envios == null) {
 			envios = new JLabel("Envios");
 			envios.setIcon(new ImageIcon(TabBar.class.getResource("/com/myshop2/ui/icons/earth.png")));

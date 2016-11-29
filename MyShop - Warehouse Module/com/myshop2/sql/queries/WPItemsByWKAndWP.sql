@@ -38,6 +38,5 @@ FROM
         LEFT JOIN
     myshop.mail_box AS mb ON oi.order_item_id = mb.order_item_id
 WHERE
-    wk_id = :id AND wp.date_completed IS NULL
-        AND p.product_id IS NOT NULL
+    wk_id = :id AND collected = 0
 ORDER BY wp.wp_id

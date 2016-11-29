@@ -22,9 +22,9 @@ public class WorkingPlanController implements Comparable<WorkingPlanController> 
 	private boolean isChild = false;
 	private WorkingPlanController parent;
 
-	public WorkingPlanController() {
+	public WorkingPlanController(int ID) {
 		childs = new ArrayList<WorkingPlanController>();
-		wp = new WorkingPlan(new Random().nextInt(10), null, new ArrayList<WorkingPlanItem>());
+		wp = new WorkingPlan(ID, null, new ArrayList<WorkingPlanItem>());
 	}
 
 	public WorkingPlanController(WorkingPlan wp) {
@@ -187,6 +187,7 @@ public class WorkingPlanController implements Comparable<WorkingPlanController> 
 			wp_id = (int) (long) con.createQuery(insertWorkingPlan, true).addParameter("wk_id", almacenero.getID())
 					.executeUpdate().getKey();
 		}
+		
 		String insertWorkingPlanItem = "UPDATE myshop.order_item SET myshop.order_item.working_plan_id = :wp_id, myshop.order_item.collected = :col WHERE myshop.order_item.order_item_id = :oi_id";
 		try (Connection con = DefaultSql2o.SQL2O.beginTransaction()) {
 			Query query = con.createQuery(insertWorkingPlanItem);

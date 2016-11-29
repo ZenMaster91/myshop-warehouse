@@ -12,5 +12,5 @@ FROM
     myshop.order_item AS oi ON o.order_id = oi.order_id
         AND o.product_id = oi.product_id
 WHERE
-    (ord.status_id = 3 OR ord.status_id = 4)
-ORDER BY o.order_id
+    (ord.status_id = 4 OR ord.status_id = 5)
+ORDER BY o.date_received

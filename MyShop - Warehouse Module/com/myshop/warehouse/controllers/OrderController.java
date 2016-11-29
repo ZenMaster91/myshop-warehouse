@@ -125,12 +125,14 @@ public class OrderController implements Comparable<OrderController> {
 	}
 	
 	public List<Order> getPendientesEmpaquetando() throws ParseException {
+		System.out.println("E"+1);
 		List<Order> aux = new ArrayList<Order>();
 		//String sql = "SELECT DISTINCT * FROM myshop.full_order AS o LEFT JOIN myshop.order as ord on o.order_id=ord.order_id LEFT JOIN myshop.full_products AS p ON o.product_id = p.product_id LEFT JOIN myshop.full_customers AS c ON o.customer_id = c.customer_id LEFT JOIN myshop.order_item AS oi ON o.order_id = oi.order_id AND o.product_id = oi.product_id WHERE (ord.status_id=3 OR ord.status_id=4) ORDER BY o.order_id";
 		List<Map<String, Object>> map;
 		try (Connection con = new DefaultSql2o().open()) {
 			map = con.createQuery(QueryLoader.load("PendientesEmpaquetadoOrders.sql")).executeAndFetchTable().asList();
 		}
+		System.out.println("E"+2);
 		int last = 0;
 		Order o = new Order();
 		for (Map<String, Object> m : map) {
@@ -139,9 +141,11 @@ public class OrderController implements Comparable<OrderController> {
 					 //System.out.println("Orden no asignada: " + o.getID() + " con " + o.getProducts().size() + " prod.");
 					aux.add(o);
 				}
+				System.out.println("E"+3);
 				o = new Order();
 				o.setID((int) m.get("order_id"));
 				Customer c;
+				System.out.println("E"+4);
 				if (m.get("company_name") == null) {
 					c = new IndividualCustomer(-1,(String) m.get("individual_name"), (String) m.get("individual_surname"),
 							new User(-1, (String) m.get("indivdual_username"), (String) m.get("individual_password")),
@@ -154,11 +158,12 @@ public class OrderController implements Comparable<OrderController> {
 							new User(-1, (String) m.get("company_username"), (String) m.get("company_password")), new Address((String) m.get("street"), (String) m.get("city"), (String) m.get("state"),
 									(String) m.get("zip_code")));
 				}
+				System.out.println("E"+5);
 				o.setCustomer(c);
 			}
 
 			Category c = new Category((String) m.get("category"));
-
+			System.out.println("E"+6);
 			ProductLocation pl = new ProductLocation((int) m.get("corridor"), (int) m.get("position"),
 					(int) m.get("height"), Side.valueOf(((String) m.get("side")).toUpperCase()));
 
@@ -166,18 +171,18 @@ public class OrderController implements Comparable<OrderController> {
 					(String) m.get("description"), (double) m.get("weight"), (double) m.get("price"), c, c, pl,
 					(double) m.get("company_price"));
 			// System.out.println("Producto " + p.getID() + " procesado");
-
+			System.out.println("E"+7);
 			Incidence i = null;
 			MailBox mb = null;
 			
-			if(m.get("incidence_id") != null) {
+			/*if(m.get("incidence_id") != null) {
 				i = new Incidence((int)m.get("incidence_id"), (String) m.get("incidence")).setSolve((boolean) m.get("incidence_solved"));
-			}
+			}*/
 			
 			if(m.get("mail_box") != null) {
 				mb = new MailBox((int) m.get("mail_box"));
 			}
-			
+			System.out.println("E"+8);
 			OrderItem oi = new OrderItem((int) m.get("order_item_id"), (int) m.get("quantity"), p, i, mb);
 			oi.setParent(o);
 			// System.out.println("Producto " + p.getID() + " procesado con " +
@@ -185,6 +190,7 @@ public class OrderController implements Comparable<OrderController> {
 
 			o.getProducts().add(oi);
 			o.setStatus(((String) m.get("status")).toUpperCase());
+			o.setDateReceived((Date) m.get("date_received"));
 
 			if (((int) m.get("order_id")) != last && o.getProducts().size() > 0) {
 				// System.out.println("Orden no asignada: " + o.getID() + " con
@@ -193,12 +199,15 @@ public class OrderController implements Comparable<OrderController> {
 			}
 
 			last = (int) m.get("order_id");
+			System.out.println("E"+9);
 		}
 		if (o.getProducts().size() > 0) {
 			// System.out.println("Orden no asignada: " + o.getID() + " con " +
 			// o.getProducts().size() + " prod.");
 			aux.add(o);
+			System.out.println("E"+10);
 		}
+		System.out.println("E"+11);
 		return aux;
 	}
 

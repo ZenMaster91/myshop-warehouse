@@ -6,18 +6,21 @@ import java.util.List;
 
 import com.myshop.model.order.Order;
 import com.myshop.model.warehouseKeeper.WarehouseKeeper;
+import com.myshop.model.workingPlan.WorkingPlan;
 import com.myshop.warehouse.controllers.OrderController;
 import com.myshop.warehouse.controllers.WarehouseKeeperController;
 import com.myshop.warehouse.controllers.WorkingPlanController;
 
 public class Session {
 	
-	public static WarehouseKeeper almacenero = new WarehouseKeeper(1, "Pepe", "Suarez Rodriguez");
+	public static WarehouseKeeper almacenero = null;
 	public static Order order = new Order();
+	public static WorkingPlan workingPlan = new WorkingPlan();
 	public static List<Order> orders = new ArrayList<Order>();
 	public static List<Order> ordersToPackage = new ArrayList<Order>();
 	
 	public static boolean isAlmaceneroOccupied = false;
+	public static WorkingPlanController workingPlanController;
 	
 	public static List<WorkingPlanController> getWorkingPlans() {
 		List<WorkingPlanController> aux = new WarehouseKeeperController().getCurrentWorkingPlan(almacenero);

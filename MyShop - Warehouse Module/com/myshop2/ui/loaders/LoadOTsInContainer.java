@@ -1,5 +1,6 @@
 package com.myshop2.ui.loaders;
 
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -8,16 +9,72 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+
 import com.myshop.model.workingPlan.WorkingPlan;
 import com.myshop.warehouse.controllers.WorkingPlanController;
+import com.myshop.warehouse.igu.DefaultNonEditableTableModel;
 import com.myshop2.ui.WarehouseAPP;
 import com.myshop2.ui.mouse.MouseAdapterWorkingPlanListPanel;
 import com.myshop2.ui.panels.DefaultListPanel;
 import com.myshop2.ui.panels.FullSimpleMessagePanel;
+import com.myshop2.ui.renderers.BodyCellRenderer;
+import com.myshop2.ui.renderers.Caption2CellRenderer;
+import com.myshop2.ui.renderers.TitleCellRenderer;
 
 public class LoadOTsInContainer {
 
 	private static int nItems = 0;
+	private static DefaultNonEditableTableModel<WorkingPlanController> model;
+	private static Component component;
+	JTable table = new JTable();
+
+	public Component loadAsTable(List<WorkingPlanController> workingPlans, WarehouseAPP app) {
+		
+		String[] columNames = { "ID", "Nº Objetos", "Fecha Creacion" };
+		model = new DefaultNonEditableTableModel<>(columNames, 3);
+		table.setModel(model);
+		table.setRowHeight(30);
+		table.getColumn("ID").setCellRenderer(new TitleCellRenderer());
+		table.getColumn("Nº Objetos").setCellRenderer(new TitleCellRenderer());
+		table.getColumn("Fecha Creacion").setCellRenderer(new BodyCellRenderer());
+		table.getTableHeader().setDefaultRenderer(new Caption2CellRenderer());
+		table.getTableHeader().setReorderingAllowed(false);
+		table.getTableHeader().setResizingAllowed(false);
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		
+		table.addMouseListener(MouseAdapterWorkingPlanListPanel.getFromTable(table, app));
+		
+		updateTable(workingPlans, app);
+		return component;
+	}
+	
+	public void updateTable(List<WorkingPlanController> workingPlans, WarehouseAPP app) {
+		nItems = 0;
+		
+		if(model == null || workingPlans.size() == 0) {
+			component = new FullSimpleMessagePanel("No hay OT's pendientes");
+		} else {
+			component = table;
+		}
+		
+		model.removeAll();
+		
+		for(WorkingPlanController wpc : workingPlans) {
+			try {
+				SimpleDateFormat df = new SimpleDateFormat("MMM dd, HH:mm aa", new Locale("es", "ES"));
+				model.addRow(wpc, wpc.getWp().getID(), wpc.getNumberOfItems(), df.format(wpc.getWp().getGenerated()));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			nItems++;
+		}
+		model.fireTableDataChanged();
+		updateReferences(app);
+		app.getScPaneOTs().getViewport().setView(component);
+	}
 
 	public static Container load(List<WorkingPlanController> workingPlans, WarehouseAPP app) {
 		nItems = 0;
@@ -80,11 +137,11 @@ public class LoadOTsInContainer {
 		if(nItems > 0) {
 			app.getLblOrdenes().setText("Órdenes de Trabajo ("+nItems()+")");
 			app.getLblOts().setText("OTs ("+nItems()+")");
-			app.getLblGenerarOt().setEnabled(true);
+			app.getLblGenerarOt().setEnabled(false);
 		} else {
 			app.getLblOrdenes().setText("Órdenes de Trabajo");
 			app.getLblOts().setText("OTs");
-			app.getLblGenerarOt().setEnabled(false);
+			app.getLblGenerarOt().setEnabled(true);
 		}
 	}
 

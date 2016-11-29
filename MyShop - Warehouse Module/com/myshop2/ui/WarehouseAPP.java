@@ -9,16 +9,22 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import com.myshop.warehouse.controllers.OrderController;
+import com.myshop.warehouse.controllers.WarehouseKeeperController;
 import com.myshop.warehouse.generators.GenerateWorkingPlan;
+import com.myshop.warehouse.validators.PedidoRecogidoEnteroValidator;
+import com.myshop.warehouse.validators.ReferenciasValidator;
+import com.myshop.warehouse.validators.WorkingPlanCompletedValidator;
 import com.myshop2.session.Session;
 import com.myshop2.time.TimerThread;
 import com.myshop2.ui.colors.SystemColor;
 import com.myshop2.ui.fonts.SystemFont;
+import com.myshop2.ui.loaders.LoadDetallesWorkingPlan;
 import com.myshop2.ui.loaders.LoadOTsInContainer;
 import com.myshop2.ui.loaders.LoadPedidosInContainer;
 import com.myshop2.ui.loaders.LoadPedidosInEmpaquetado;
 import com.myshop2.ui.mouse.CursorMode;
 import com.myshop2.ui.mouse.GoToEmpaquetadoMouseListener;
+import com.myshop2.ui.mouse.GoToEnviosMouseListener;
 import com.myshop2.ui.mouse.GoToOTsMouseListener;
 import com.myshop2.ui.mouse.GoToPedidosMouseListener;
 import com.myshop2.ui.panels.NavBar;
@@ -33,6 +39,7 @@ import javax.swing.SwingWorker;
 import javax.swing.JScrollPane;
 import javax.swing.BorderFactory;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.JTextField;
 import javax.swing.ImageIcon;
 import javax.swing.border.MatteBorder;
@@ -45,6 +52,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JTextPane;
 import javax.swing.JComboBox;
 import java.awt.Cursor;
+import javax.swing.JSpinner;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.DefaultComboBoxModel;
 
 public class WarehouseAPP extends JFrame {
 
@@ -133,37 +145,48 @@ public class WarehouseAPP extends JFrame {
 	public JScrollPane scPaneIncidenceDescription;
 	public JTextPane txtIncidence;
 	public JPanel feedback;
-	public JLabel lblNewLabel;
+	public JLabel lblMessage;
 	public JPanel panel_10;
-	private JLabel lblEntrar;
-	private JLabel lblCerrarCaja;
-	private JPanel VistaEnvios;
-	private JPanel panel_3;
-	private JLabel lblTimePedidos;
-	private JLabel lblPedidos;
-	private JLabel label_6;
-	private JScrollPane scrollPane;
-	private JLabel label_5;
-	private JPanel VistaEnvio;
-	private JPanel panel_5;
-	private JLabel label_4;
-	private JLabel label_8;
-	private JLabel lblListo;
-	private JLabel lblEnvios;
-	private JPanel panel_11;
-	private JLabel lblEnvio;
-	private JLabel lblIdenvio;
-	private JLabel lblTransportista;
-	private JComboBox cmboTransportistas;
-	private JPanel panel_12;
-	private JLabel lblCajasEnEl;
-	private JPanel panel_13;
-	private JLabel lblCajasDisponibles;
-	private JPanel panel_14;
-	private JTextField txtIdcaja;
-	private JLabel lblIdCaja;
-	private JScrollPane scrollPane_1;
-	private JScrollPane scrollPane_2;
+	public JLabel lblEntrar;
+	public JLabel lblCerrarCaja;
+	public JPanel VistaEnvios;
+	public JPanel panel_3;
+	public JLabel lblTimePedidos;
+	public JLabel lblPedidos;
+	public JLabel label_6;
+	public JScrollPane scPaneEnvios;
+	public JLabel label_5;
+	public JPanel VistaEnvio;
+	public JPanel panel_5;
+	public JLabel label_4;
+	public JLabel label_8;
+	public JLabel lblListo;
+	public JLabel lblEnvios;
+	public JPanel panel_11;
+	public JLabel lblEnvio;
+	public JLabel lblIdenvio;
+	public JLabel lblTransportista;
+	public JComboBox cmboTransportistas;
+	public JPanel panel_12;
+	public JLabel lblCajasEnEl;
+	public JPanel panel_13;
+	public JLabel lblCajasDisponibles;
+	public JPanel panel_14;
+	public JTextField txtIdcaja;
+	public JLabel lblIdCaja;
+	public JScrollPane scrollPane_1;
+	public JScrollPane scrollPane_2;
+	public JLabel lblUpdate;
+	public LoadPedidosInContainer pedidosLoader = new LoadPedidosInContainer();
+	public LoadOTsInContainer otsLoader = new LoadOTsInContainer();
+	public JLabel label_9;
+	public JSpinner spinner;
+	public JLabel lblCantidad;
+	public JButton btnRecoger;
+	public JPanel panel_15;
+	public JPanel pnEscanear;
+	public JPanel pnFeedback;
+	public JScrollPane scPaneEmpaquetadoIndv;
 
 	/**
 	 * Launch the application.
@@ -187,10 +210,7 @@ public class WarehouseAPP extends JFrame {
 	 * Create the frame.
 	 */
 	public WarehouseAPP() {
-		new TimerThread(getTime(),
-						getTimePedidoIndv(),
-						getTimeOts(),
-						getTimeEmpaquetado()).start();
+		new TimerThread(getTime(), getTimePedidoIndv(), getTimeOts(), getTimeEmpaquetado(), getLblTimePedidos()).start();
 		promptSupport();
 		setBackground(Color.WHITE);
 		setResizable(false);
@@ -208,8 +228,8 @@ public class WarehouseAPP extends JFrame {
 		contentPane.add(getVistaEmpaquetado(), "vistaEmpaquetado");
 		contentPane.add(getVistaOTIndividual(), "vistaOTIndividual");
 		contentPane.add(getVistaEmpaquetadoIndividual(), "vistaEmpaquetadoIndividual");
-		contentPane.add(getVistaEnvios(), "name_345040315038");
-		contentPane.add(getVistaEnvio(), "name_660892651095");
+		contentPane.add(getVistaEnvios(), "vistaEnvios");
+		contentPane.add(getVistaEnvio(), "vistaEnvioIndividual");
 	}
 
 	public JPanel getInicio() {
@@ -232,11 +252,13 @@ public class WarehouseAPP extends JFrame {
 			VistaListaPedidos.setBackground(Color.WHITE);
 			VistaListaPedidos.setLayout(null);
 			VistaListaPedidos.add(getScPaneListaPedidos());
-			//VistaListaPedidos.add(new NavBar(null, "", null).setBackVisible(false).setActionVisible(false));
+			// VistaListaPedidos.add(new NavBar(null, "",
+			// null).setBackVisible(false).setActionVisible(false));
 			VistaListaPedidos.add(getNavigationBar());
 			TabBar tb = new TabBar();
 			tb.getOts().addMouseListener(GoToOTsMouseListener.get(this));
 			tb.getEmpaquetado().addMouseListener(GoToEmpaquetadoMouseListener.get(this));
+			tb.getEnvios().addMouseListener(GoToEnviosMouseListener.get(this));
 			VistaListaPedidos.add(tb.setActive(tb.getPedidos()));
 		}
 		return VistaListaPedidos;
@@ -263,6 +285,7 @@ public class WarehouseAPP extends JFrame {
 			TabBar tb = new TabBar();
 			tb.getPedidos().addMouseListener(GoToPedidosMouseListener.get(this));
 			tb.getEmpaquetado().addMouseListener(GoToEmpaquetadoMouseListener.get(this));
+			tb.getEnvios().addMouseListener(GoToEnviosMouseListener.get(this));
 			VistaOTs.add(tb.setActive(tb.getOts()));
 			VistaOTs.add(getScPaneOTs());
 		}
@@ -291,6 +314,7 @@ public class WarehouseAPP extends JFrame {
 			TabBar tb = new TabBar();
 			tb.getPedidos().addMouseListener(GoToPedidosMouseListener.get(this));
 			tb.getOts().addMouseListener(GoToOTsMouseListener.get(this));
+			tb.getEnvios().addMouseListener(GoToEnviosMouseListener.get(this));
 			VistaEmpaquetado.add(tb.setActive(tb.getEmpaquetado()));
 			VistaEmpaquetado.add(getScPaneEmpaquetado());
 		}
@@ -304,6 +328,8 @@ public class WarehouseAPP extends JFrame {
 			VistaEmpaquetadoIndividual.setLayout(null);
 			VistaEmpaquetadoIndividual.add(getPanel_8());
 			VistaEmpaquetadoIndividual.add(getPanel_9());
+			VistaEmpaquetadoIndividual.add(getPanel_15());
+			VistaEmpaquetadoIndividual.add(getScPaneEmpaquetadoIndv());
 		}
 		return VistaEmpaquetadoIndividual;
 	}
@@ -331,37 +357,22 @@ public class WarehouseAPP extends JFrame {
 	}
 
 	public void loadPedidosInView() {
-		getScPaneListaPedidos().getViewport().setView(LoadPedidosInContainer
-				.load(Session.getNotAssignedOrders(),
-						getScPaneListaPedidos().getWidth(),
-						getContentPane(),
-						"vistaPedidoIndividual",
-						getScPedidoIndividual(),
-						this));
+		getScPaneListaPedidos().getViewport().setView(pedidosLoader.loadAsTable(Session.getNotAssignedOrders(), this));
 		revalidate();
 		repaint();
 		loadOTsInView();
-		//loadPedidosInEmpaquetadoView();
+		// loadPedidosInEmpaquetadoView();
 	}
 
 	public void loadOTsInView() {
-		getScPaneOTs().getViewport().setView(LoadOTsInContainer
-				.load(Session.getWorkingPlans(), this));
+		getScPaneOTs().getViewport().setView(otsLoader.loadAsTable(Session.getWorkingPlans(), this));
 		revalidate();
 		repaint();
+		loadPedidosInEmpaquetadoView();
 	}
-	
+
 	public void loadPedidosInEmpaquetadoView() {
-		getScPaneEmpaquetado().getViewport().setView(LoadPedidosInEmpaquetado
-				.load(Session.getPendientesEmpaquetado(),
-						getScPaneListaPedidos().getWidth(),
-						getContentPane(),
-						"vistaEmpaquetadoIndividual",
-						getScPedidoIndividual(),
-						getLblIdpedido(),
-						getLblFecha_1(),
-						getLblNarticulos(),
-						getLblPeso_1()));
+		getScPaneEmpaquetado().getViewport().setView(new LoadPedidosInEmpaquetado().loadAsTable(Session.getPendientesEmpaquetado(),this));
 	}
 
 	public JPanel getNavigationBar() {
@@ -374,9 +385,11 @@ public class WarehouseAPP extends JFrame {
 			navigationBar.add(getTime());
 			navigationBar.add(getPedidosTitleCounter());
 			navigationBar.add(getStatusBar());
+			navigationBar.add(getLblUpdate());
 		}
 		return navigationBar;
 	}
+
 	public JLabel getTime() {
 		if (time == null) {
 			time = new JLabel("12:41 AM");
@@ -386,6 +399,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return time;
 	}
+
 	public JLabel getPedidosTitleCounter() {
 		if (pedidosTitleCounter == null) {
 			pedidosTitleCounter = new JLabel("Pedidos (5)");
@@ -395,6 +409,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return pedidosTitleCounter;
 	}
+
 	public JTextField getTxtIdAlmacenero() {
 		if (txtIdAlmacenero == null) {
 			txtIdAlmacenero = new JTextField();
@@ -406,6 +421,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return txtIdAlmacenero;
 	}
+
 	public JLabel getLblIdAlmacenero() {
 		if (lblIdAlmacenero == null) {
 			lblIdAlmacenero = new JLabel("ID Almacenero:");
@@ -415,6 +431,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblIdAlmacenero;
 	}
+
 	public JLabel getStatusBar() {
 		if (statusBar == null) {
 			statusBar = new JLabel("");
@@ -423,6 +440,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return statusBar;
 	}
+
 	public JPanel getPanel() {
 		if (panel == null) {
 			panel = new JPanel();
@@ -437,6 +455,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return panel;
 	}
+
 	public JLabel getTimePedidoIndv() {
 		if (timePedidoIndv == null) {
 			timePedidoIndv = new JLabel("12:41 AM");
@@ -447,6 +466,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return timePedidoIndv;
 	}
+
 	public JLabel getLabel_2() {
 		if (label_2 == null) {
 			label_2 = new JLabel("");
@@ -455,6 +475,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return label_2;
 	}
+
 	public JLabel getLblGenerarOt() {
 		if (lblGenerarOt == null) {
 			lblGenerarOt = new JLabel("Generar O.T");
@@ -462,7 +483,7 @@ public class WarehouseAPP extends JFrame {
 			lblGenerarOt.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mousePressed(MouseEvent e) {
-					if(lblGenerarOt.isEnabled())
+					if (lblGenerarOt.isEnabled())
 						GenerateWorkingPlan.generateAndAssign(Session.almacenero, Session.order, Session.orders);
 				}
 			});
@@ -475,17 +496,19 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblGenerarOt;
 	}
+
 	public JLabel getLlblPedidosLink() {
 		if (llblPedidosLink == null) {
 			llblPedidosLink = new JLabel("Pedidos (-)");
 			llblPedidosLink.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mousePressed(MouseEvent e) {
-					((CardLayout)getContentPane().getLayout()).show(getContentPane(), "vistaListaPedidos");
+					((CardLayout) getContentPane().getLayout()).show(getContentPane(), "vistaListaPedidos");
 				}
 			});
 			llblPedidosLink.setIconTextGap(10);
-			llblPedidosLink.setIcon(new ImageIcon(WarehouseAPP.class.getResource("/com/myshop2/ui/icons/back-arrow.png")));
+			llblPedidosLink
+					.setIcon(new ImageIcon(WarehouseAPP.class.getResource("/com/myshop2/ui/icons/back-arrow.png")));
 			llblPedidosLink.setHorizontalAlignment(SwingConstants.LEFT);
 			llblPedidosLink.setFont(new SystemFont().backButton);
 			llblPedidosLink.setForeground(SystemColor.blue);
@@ -493,6 +516,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return llblPedidosLink;
 	}
+
 	public JPanel getPanel_1() {
 		if (panel_1 == null) {
 			panel_1 = new JPanel();
@@ -511,6 +535,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return panel_1;
 	}
+
 	public JLabel getLblPedido() {
 		if (lblPedido == null) {
 			lblPedido = new JLabel("Pedido:");
@@ -519,6 +544,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblPedido;
 	}
+
 	public JLabel getLblIdpedido() {
 		if (lblIdpedido == null) {
 			lblIdpedido = new JLabel("idPedido");
@@ -527,6 +553,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblIdpedido;
 	}
+
 	public JLabel getLblFecha() {
 		if (lblFecha == null) {
 			lblFecha = new JLabel("Fecha:");
@@ -535,6 +562,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblFecha;
 	}
+
 	public JLabel getLblFecha_1() {
 		if (lblFecha_1 == null) {
 			lblFecha_1 = new JLabel("fecha");
@@ -543,6 +571,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblFecha_1;
 	}
+
 	public JLabel getLblNArtculos() {
 		if (lblNArtculos == null) {
 			lblNArtculos = new JLabel("Nº Artículos:");
@@ -551,6 +580,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblNArtculos;
 	}
+
 	public JLabel getLblNarticulos() {
 		if (lblNarticulos == null) {
 			lblNarticulos = new JLabel("narticulos");
@@ -559,6 +589,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblNarticulos;
 	}
+
 	public JLabel getLblPeso() {
 		if (lblPeso == null) {
 			lblPeso = new JLabel("Peso:");
@@ -567,6 +598,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblPeso;
 	}
+
 	public JLabel getLblPeso_1() {
 		if (lblPeso_1 == null) {
 			lblPeso_1 = new JLabel("peso");
@@ -575,6 +607,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblPeso_1;
 	}
+
 	public JScrollPane getScPedidoIndividual() {
 		if (scPedidoIndividual == null) {
 			scPedidoIndividual = new JScrollPane();
@@ -586,6 +619,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return scPedidoIndividual;
 	}
+
 	public JPanel getPanel_2() {
 		if (panel_2 == null) {
 			panel_2 = new JPanel();
@@ -596,9 +630,11 @@ public class WarehouseAPP extends JFrame {
 			panel_2.add(getTimeOts());
 			panel_2.add(getLblOrdenes());
 			panel_2.add(getLabel_3());
+			panel_2.add(getLabel_9());
 		}
 		return panel_2;
 	}
+
 	public JLabel getTimeOts() {
 		if (timeOts == null) {
 			timeOts = new JLabel("12:41 AM");
@@ -608,6 +644,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return timeOts;
 	}
+
 	public JLabel getLblOrdenes() {
 		if (lblOrdenes == null) {
 			lblOrdenes = new JLabel("Ordenes de Trabajo (5)");
@@ -617,6 +654,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblOrdenes;
 	}
+
 	public JLabel getLabel_3() {
 		if (label_3 == null) {
 			label_3 = new JLabel("");
@@ -625,6 +663,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return label_3;
 	}
+
 	public JPanel getPanel_4() {
 		if (panel_4 == null) {
 			panel_4 = new JPanel();
@@ -638,6 +677,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return panel_4;
 	}
+
 	public JLabel getTimeEmpaquetado() {
 		if (timeEmpaquetado == null) {
 			timeEmpaquetado = new JLabel("12:41 AM");
@@ -647,6 +687,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return timeEmpaquetado;
 	}
+
 	public JLabel getLabel_1_1() {
 		if (lblEmpaquetar == null) {
 			lblEmpaquetar = new JLabel("Empaquetar (5)");
@@ -656,6 +697,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblEmpaquetar;
 	}
+
 	public JLabel getLabel_7() {
 		if (label_7 == null) {
 			label_7 = new JLabel("");
@@ -664,6 +706,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return label_7;
 	}
+
 	public JPanel getPanel_6() {
 		if (panel_6 == null) {
 			panel_6 = new JPanel();
@@ -678,6 +721,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return panel_6;
 	}
+
 	public JLabel getLabel() {
 		if (label == null) {
 			label = new JLabel("12:41 AM");
@@ -687,6 +731,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return label;
 	}
+
 	public JLabel getLabel_1() {
 		if (label_1 == null) {
 			label_1 = new JLabel("");
@@ -695,6 +740,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return label_1;
 	}
+
 	public JLabel getLblEscanear() {
 		if (lblEscanear == null) {
 			lblEscanear = new JLabel("Escanear");
@@ -706,6 +752,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblEscanear;
 	}
+
 	public JLabel getLblOts() {
 		if (lblOts == null) {
 			lblOts = new JLabel("OTs (-)");
@@ -719,6 +766,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblOts;
 	}
+
 	public JPanel getPanel_7() {
 		if (panel_7 == null) {
 			panel_7 = new JPanel();
@@ -737,22 +785,25 @@ public class WarehouseAPP extends JFrame {
 		}
 		return panel_7;
 	}
+
 	public JLabel getLblpedidoOTIndv() {
 		if (lblpedidoOTIndv == null) {
-			lblpedidoOTIndv = new JLabel("Pedido:");
+			lblpedidoOTIndv = new JLabel("Hoja de Trabajo:");
 			lblpedidoOTIndv.setFont(null);
-			lblpedidoOTIndv.setBounds(25, 6, 61, 16);
+			lblpedidoOTIndv.setBounds(25, 6, 126, 16);
 		}
 		return lblpedidoOTIndv;
 	}
+
 	public JLabel getIdPedidoOTIndv() {
 		if (idPedidoOTIndv == null) {
 			idPedidoOTIndv = new JLabel("idPedido");
 			idPedidoOTIndv.setFont(null);
-			idPedidoOTIndv.setBounds(79, 6, 61, 16);
+			idPedidoOTIndv.setBounds(134, 6, 61, 16);
 		}
 		return idPedidoOTIndv;
 	}
+
 	public JLabel getLblfechaOTIndv() {
 		if (lblfechaOTIndv == null) {
 			lblfechaOTIndv = new JLabel("Fecha:");
@@ -761,6 +812,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblfechaOTIndv;
 	}
+
 	public JLabel getFechaOTIndv() {
 		if (fechaOTIndv == null) {
 			fechaOTIndv = new JLabel("fecha");
@@ -769,6 +821,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return fechaOTIndv;
 	}
+
 	public JLabel getLblnArticulosOTIndv() {
 		if (lblnArticulosOTIndv == null) {
 			lblnArticulosOTIndv = new JLabel("Nº Artículos:");
@@ -777,6 +830,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblnArticulosOTIndv;
 	}
+
 	public JLabel getArticulosOTIdnv() {
 		if (articulosOTIdnv == null) {
 			articulosOTIdnv = new JLabel("narticulos");
@@ -785,6 +839,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return articulosOTIdnv;
 	}
+
 	public JLabel getLblpesoOTIdiv() {
 		if (lblpesoOTIdiv == null) {
 			lblpesoOTIdiv = new JLabel("Peso:");
@@ -793,6 +848,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblpesoOTIdiv;
 	}
+
 	public JLabel getPesoOTIndv() {
 		if (pesoOTIndv == null) {
 			pesoOTIndv = new JLabel("peso");
@@ -801,6 +857,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return pesoOTIndv;
 	}
+
 	public JScrollPane getScPaneOTIndiv() {
 		if (scPaneOTIndiv == null) {
 			scPaneOTIndiv = new JScrollPane();
@@ -812,6 +869,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return scPaneOTIndiv;
 	}
+
 	public JScrollPane getScPaneOTs() {
 		if (scPaneOTs == null) {
 			scPaneOTs = new JScrollPane();
@@ -823,6 +881,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return scPaneOTs;
 	}
+
 	public JScrollPane getScPaneEmpaquetado() {
 		if (scPaneEmpaquetado == null) {
 			scPaneEmpaquetado = new JScrollPane();
@@ -834,6 +893,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return scPaneEmpaquetado;
 	}
+
 	public JPanel getPanel_8() {
 		if (panel_8 == null) {
 			panel_8 = new JPanel();
@@ -849,15 +909,17 @@ public class WarehouseAPP extends JFrame {
 		}
 		return panel_8;
 	}
+
 	public JLabel getLabel_11() {
 		if (label_11 == null) {
 			label_11 = new JLabel("12:41 AM");
 			label_11.setHorizontalAlignment(SwingConstants.CENTER);
-			label_11.setFont(null);
+			label_11.setFont(new SystemFont().smallerText);
 			label_11.setBounds(157, 0, 61, 16);
 		}
 		return label_11;
 	}
+
 	public JLabel getLabel_12() {
 		if (label_12 == null) {
 			label_12 = new JLabel("");
@@ -866,6 +928,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return label_12;
 	}
+
 	public JLabel getLabel_13() {
 		if (label_13 == null) {
 			label_13 = new JLabel("Escanear");
@@ -877,18 +940,27 @@ public class WarehouseAPP extends JFrame {
 		}
 		return label_13;
 	}
+
 	public JLabel getLblEmpaquetar_1() {
 		if (lblEmpaquetar_1 == null) {
 			lblEmpaquetar_1 = new JLabel("Empaquetar (-)");
-			lblEmpaquetar_1.setIcon(new ImageIcon(WarehouseAPP.class.getResource("/com/myshop2/ui/icons/back-arrow.png")));
+			lblEmpaquetar_1.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					((CardLayout) getContentPane().getLayout()).show(getContentPane(), "vistaEmpaquetado");
+				}
+			});
+			lblEmpaquetar_1
+					.setIcon(new ImageIcon(WarehouseAPP.class.getResource("/com/myshop2/ui/icons/back-arrow.png")));
 			lblEmpaquetar_1.setIconTextGap(2);
 			lblEmpaquetar_1.setHorizontalAlignment(SwingConstants.LEFT);
 			lblEmpaquetar_1.setForeground(new Color(0, 121, 255));
-			lblEmpaquetar_1.setFont(null);
+			lblEmpaquetar_1.setFont(SystemFont.callout);
 			lblEmpaquetar_1.setBounds(6, 28, 166, 24);
 		}
 		return lblEmpaquetar_1;
 	}
+
 	public JPanel getPanel_9() {
 		if (panel_9 == null) {
 			panel_9 = new JPanel();
@@ -907,6 +979,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return panel_9;
 	}
+
 	public JLabel getLabel_15() {
 		if (label_15 == null) {
 			label_15 = new JLabel("Pedido:");
@@ -915,6 +988,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return label_15;
 	}
+
 	public JLabel getIdPedidoEmpInd() {
 		if (idPedidoEmpInd == null) {
 			idPedidoEmpInd = new JLabel("idPedido");
@@ -923,6 +997,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return idPedidoEmpInd;
 	}
+
 	public JLabel getLabel_17() {
 		if (label_17 == null) {
 			label_17 = new JLabel("Fecha:");
@@ -931,6 +1006,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return label_17;
 	}
+
 	public JLabel getFechaEmpInd() {
 		if (fechaEmpInd == null) {
 			fechaEmpInd = new JLabel("fecha");
@@ -939,6 +1015,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return fechaEmpInd;
 	}
+
 	public JLabel getLabel_19() {
 		if (label_19 == null) {
 			label_19 = new JLabel("Nº Artículos:");
@@ -947,6 +1024,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return label_19;
 	}
+
 	public JLabel getNarticulosEmpInd() {
 		if (narticulosEmpInd == null) {
 			narticulosEmpInd = new JLabel("narticulos");
@@ -955,6 +1033,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return narticulosEmpInd;
 	}
+
 	public JLabel getLabel_21() {
 		if (label_21 == null) {
 			label_21 = new JLabel("Peso:");
@@ -963,6 +1042,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return label_21;
 	}
+
 	public JLabel getPesoEmpInd() {
 		if (pesoEmpInd == null) {
 			pesoEmpInd = new JLabel("peso");
@@ -971,12 +1051,13 @@ public class WarehouseAPP extends JFrame {
 		}
 		return pesoEmpInd;
 	}
+
 	public JPanel getToolsOTIndv() {
 		if (toolsOTIndv == null) {
 			toolsOTIndv = new JPanel();
 			toolsOTIndv.setBorder(new MatteBorder(1, 0, 0, 0, SystemColor.lineGray));
 			toolsOTIndv.setBackground(Color.WHITE);
-			toolsOTIndv.setBounds(0, 353, 375, 155);
+			toolsOTIndv.setBounds(0, 356, 375, 152);
 			toolsOTIndv.setLayout(new CardLayout(0, 0));
 			toolsOTIndv.add(getScanner(), "scanner");
 			toolsOTIndv.add(getIncidence(), "incidence");
@@ -984,6 +1065,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return toolsOTIndv;
 	}
+
 	public JPanel getScanner() {
 		if (scanner == null) {
 			scanner = new JPanel();
@@ -992,28 +1074,34 @@ public class WarehouseAPP extends JFrame {
 			scanner.setLayout(null);
 			scanner.add(getScannerToolOTidProd());
 			scanner.add(getTextField());
+			scanner.add(getSpinner());
+			scanner.add(getLblCantidad());
+			scanner.add(getBtnRecoger());
 		}
 		return scanner;
 	}
+
 	public JLabel getScannerToolOTidProd() {
 		if (scannerToolOTidProd == null) {
 			scannerToolOTidProd = new JLabel("ID Producto:");
 			scannerToolOTidProd.setHorizontalAlignment(SwingConstants.CENTER);
-			scannerToolOTidProd.setBounds(6, 45, 363, 34);
+			scannerToolOTidProd.setBounds(6, 45, 224, 34);
 			scannerToolOTidProd.setFont(new SystemFont().mediumText);
 		}
 		return scannerToolOTidProd;
 	}
+
 	public JTextField getTextField() {
 		if (textField == null) {
 			textField = new JTextField();
 			textField.setHorizontalAlignment(SwingConstants.CENTER);
-			textField.setBounds(6, 79, 363, 26);
+			textField.setBounds(6, 79, 224, 26);
 			textField.setColumns(10);
 			textField.setFont(new SystemFont().normalText);
 		}
 		return textField;
 	}
+
 	public JPanel getIncidence() {
 		if (incidence == null) {
 			incidence = new JPanel();
@@ -1025,6 +1113,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return incidence;
 	}
+
 	public JLabel getLblIncidence() {
 		if (lblIncidence == null) {
 			lblIncidence = new JLabel("Incidence:");
@@ -1032,6 +1121,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblIncidence;
 	}
+
 	public JCheckBox getChckbxSolucionada() {
 		if (chckbxSolucionada == null) {
 			chckbxSolucionada = new JCheckBox("Solucionada");
@@ -1040,6 +1130,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return chckbxSolucionada;
 	}
+
 	public JScrollPane getScPaneIncidenceDescription() {
 		if (scPaneIncidenceDescription == null) {
 			scPaneIncidenceDescription = new JScrollPane();
@@ -1050,45 +1141,55 @@ public class WarehouseAPP extends JFrame {
 		}
 		return scPaneIncidenceDescription;
 	}
+
 	public JTextPane getTxtIncidence() {
 		if (txtIncidence == null) {
 			txtIncidence = new JTextPane();
 		}
 		return txtIncidence;
 	}
+
 	public JPanel getFeedback() {
 		if (feedback == null) {
 			feedback = new JPanel();
 			feedback.setBackground(Color.WHITE);
 			feedback.setLayout(null);
-			feedback.add(getLblNewLabel());
+			feedback.add(getLblMessage());
 		}
 		return feedback;
 	}
-	public JLabel getLblNewLabel() {
-		if (lblNewLabel == null) {
-			lblNewLabel = new JLabel("Message");
-			lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-			lblNewLabel.setBounds(6, 6, 363, 144);
-			lblNewLabel.setFont(new SystemFont().mediumText);
+
+	public JLabel getLblMessage() {
+		if (lblMessage == null) {
+			lblMessage = new JLabel("Message");
+			lblMessage.setHorizontalAlignment(SwingConstants.CENTER);
+			lblMessage.setBounds(6, 6, 363, 144);
+			lblMessage.setFont(new SystemFont().mediumText);
 		}
-		return lblNewLabel;
+		return lblMessage;
 	}
-	
+
 	public JLabel getLblEntrar() {
 		if (lblEntrar == null) {
 			lblEntrar = new JLabel("Entrar");
 			lblEntrar.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mousePressed(MouseEvent e) {
+					if (e.getClickCount() > 1) {
+						return;
+					}
 					SwingWorker<Void, Void> sw = new SwingWorker<Void, Void>() {
 						@Override
 						protected Void doInBackground() throws Exception {
 							CursorMode.wait(lblEntrar);
+							Session.almacenero = new WarehouseKeeperController().getByID(getTxtIdAlmacenero().getText())
+									.get(0);
 							loadPedidosInView();
-							if(LoadPedidosInContainer.numberOfOrders()>0) {
-								getPedidosTitleCounter().setText("Pedidos ("+LoadPedidosInContainer.numberOfOrders()+")");
-								getLlblPedidosLink().setText("Pedidos ("+LoadPedidosInContainer.numberOfOrders()+")");
+							if (LoadPedidosInContainer.numberOfOrders() > 0) {
+								getPedidosTitleCounter()
+										.setText("Pedidos (" + LoadPedidosInContainer.numberOfOrders() + ")");
+								getLlblPedidosLink()
+										.setText("Pedidos (" + LoadPedidosInContainer.numberOfOrders() + ")");
 							} else {
 								getPedidosTitleCounter().setText("Pedidos");
 								getLlblPedidosLink().setText("Pedidos");
@@ -1099,11 +1200,13 @@ public class WarehouseAPP extends JFrame {
 						@Override
 						protected void done() {
 							CursorMode.normal(lblEntrar);
-							((CardLayout) getContentPane().getLayout()).show(getContentPane(), "vistaListaPedidos");
+							if(Session.almacenero!=null)
+								((CardLayout) getContentPane().getLayout()).show(getContentPane(), "vistaListaPedidos");
 						}
 					};
 
-					sw.execute(); // this will start the processing on a separate thread
+					sw.execute(); // this will start the processing on a
+									// separate thread
 				}
 			});
 			lblEntrar.setHorizontalTextPosition(SwingConstants.LEADING);
@@ -1112,17 +1215,18 @@ public class WarehouseAPP extends JFrame {
 			lblEntrar.setBounds(129, 329, 117, 36);
 			lblEntrar.setFont(new SystemFont().backButton);
 			lblEntrar.setForeground(SystemColor.blue);
-			
+
 		}
 		return lblEntrar;
 	}
-	
-	private void promptSupport() {
+
+	public void promptSupport() {
 		PromptSupport.setPrompt("ID Almacenero", getTxtIdAlmacenero());
 		PromptSupport.setFocusBehavior(PromptSupport.FocusBehavior.SHOW_PROMPT, getTxtIdAlmacenero());
 		PromptSupport.setFontStyle(Font.PLAIN, getTxtIdAlmacenero());
 	}
-	private JLabel getLblCerrarCaja() {
+
+	public JLabel getLblCerrarCaja() {
 		if (lblCerrarCaja == null) {
 			lblCerrarCaja = new JLabel("Cerrar Caja");
 			lblCerrarCaja.setIconTextGap(8);
@@ -1133,17 +1237,24 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblCerrarCaja;
 	}
-	private JPanel getVistaEnvios() {
+
+	public JPanel getVistaEnvios() {
 		if (VistaEnvios == null) {
 			VistaEnvios = new JPanel();
 			VistaEnvios.setBackground(Color.WHITE);
 			VistaEnvios.setLayout(null);
 			VistaEnvios.add(getPanel_3());
-			VistaEnvios.add(getScrollPane());
+			VistaEnvios.add(getScPaneEnvios());
+			TabBar tb = new TabBar();
+			tb.getPedidos().addMouseListener(GoToPedidosMouseListener.get(this));
+			tb.getOts().addMouseListener(GoToOTsMouseListener.get(this));
+			tb.getEmpaquetado().addMouseListener(GoToEmpaquetadoMouseListener.get(this));
+			VistaEnvios.add(tb.setActive(tb.getEnvios()));
 		}
 		return VistaEnvios;
 	}
-	private JPanel getPanel_3() {
+
+	public JPanel getPanel_3() {
 		if (panel_3 == null) {
 			panel_3 = new JPanel();
 			panel_3.setLayout(null);
@@ -1157,25 +1268,28 @@ public class WarehouseAPP extends JFrame {
 		}
 		return panel_3;
 	}
-	private JLabel getLblTimePedidos() {
+
+	public JLabel getLblTimePedidos() {
 		if (lblTimePedidos == null) {
 			lblTimePedidos = new JLabel("12:41 AM");
 			lblTimePedidos.setHorizontalAlignment(SwingConstants.CENTER);
-			lblTimePedidos.setFont(null);
+			lblTimePedidos.setFont(new SystemFont().smallerText);
 			lblTimePedidos.setBounds(157, 0, 61, 16);
 		}
 		return lblTimePedidos;
 	}
-	private JLabel getLblPedidos() {
+
+	public JLabel getLblPedidos() {
 		if (lblPedidos == null) {
 			lblPedidos = new JLabel("Envios (1)");
 			lblPedidos.setHorizontalAlignment(SwingConstants.CENTER);
-			lblPedidos.setFont(null);
+			lblPedidos.setFont(SystemFont.title_1);
 			lblPedidos.setBounds(86, 30, 202, 24);
 		}
 		return lblPedidos;
 	}
-	private JLabel getLabel_6() {
+
+	public JLabel getLabel_6() {
 		if (label_6 == null) {
 			label_6 = new JLabel("");
 			label_6.setIcon(new ImageIcon(WarehouseAPP.class.getResource("/com/myshop2/ui/icons/status-bar22.png")));
@@ -1183,16 +1297,28 @@ public class WarehouseAPP extends JFrame {
 		}
 		return label_6;
 	}
-	private JScrollPane getScrollPane() {
-		if (scrollPane == null) {
-			scrollPane = new JScrollPane();
-			scrollPane.setBounds(0, 64, 375, 444);
+
+	public JScrollPane getScPaneEnvios() {
+		if (scPaneEnvios == null) {
+			scPaneEnvios = new JScrollPane();
+			scPaneEnvios.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			scPaneEnvios.getVerticalScrollBar().setPreferredSize(new Dimension(3, 0));
+			scPaneEnvios.setViewportBorder(null);
+			scPaneEnvios.setBounds(0, 64, 375, 387);
+			scPaneEnvios.setBorder(BorderFactory.createEmptyBorder());
 		}
-		return scrollPane;
+		return scPaneEnvios;
 	}
-	private JLabel getLabel_5() {
+
+	public JLabel getLabel_5() {
 		if (label_5 == null) {
 			label_5 = new JLabel("");
+			label_5.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					((CardLayout) getContentPane().getLayout()).show(getContentPane(), "vistaEnvioIndividual");
+				}
+			});
 			label_5.setIcon(new ImageIcon(WarehouseAPP.class.getResource("/com/myshop2/ui/icons/add.png")));
 			label_5.setIconTextGap(8);
 			label_5.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -1202,7 +1328,8 @@ public class WarehouseAPP extends JFrame {
 		}
 		return label_5;
 	}
-	private JPanel getVistaEnvio() {
+
+	public JPanel getVistaEnvio() {
 		if (VistaEnvio == null) {
 			VistaEnvio = new JPanel();
 			VistaEnvio.setBackground(Color.WHITE);
@@ -1217,7 +1344,8 @@ public class WarehouseAPP extends JFrame {
 		}
 		return VistaEnvio;
 	}
-	private JPanel getPanel_5() {
+
+	public JPanel getPanel_5() {
 		if (panel_5 == null) {
 			panel_5 = new JPanel();
 			panel_5.setLayout(null);
@@ -1231,7 +1359,8 @@ public class WarehouseAPP extends JFrame {
 		}
 		return panel_5;
 	}
-	private JLabel getLabel_4() {
+
+	public JLabel getLabel_4() {
 		if (label_4 == null) {
 			label_4 = new JLabel("12:41 AM");
 			label_4.setHorizontalAlignment(SwingConstants.CENTER);
@@ -1240,7 +1369,8 @@ public class WarehouseAPP extends JFrame {
 		}
 		return label_4;
 	}
-	private JLabel getLabel_8() {
+
+	public JLabel getLabel_8() {
 		if (label_8 == null) {
 			label_8 = new JLabel("");
 			label_8.setIcon(new ImageIcon(WarehouseAPP.class.getResource("/com/myshop2/ui/icons/status-bar22.png")));
@@ -1248,7 +1378,8 @@ public class WarehouseAPP extends JFrame {
 		}
 		return label_8;
 	}
-	private JLabel getLblListo() {
+
+	public JLabel getLblListo() {
 		if (lblListo == null) {
 			lblListo = new JLabel("Listo");
 			lblListo.setIconTextGap(8);
@@ -1259,7 +1390,8 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblListo;
 	}
-	private JLabel getLblEnvios() {
+
+	public JLabel getLblEnvios() {
 		if (lblEnvios == null) {
 			lblEnvios = new JLabel("Envios");
 			lblEnvios.setIcon(new ImageIcon(WarehouseAPP.class.getResource("/com/myshop2/ui/icons/back-arrow.png")));
@@ -1271,7 +1403,8 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblEnvios;
 	}
-	private JPanel getPanel_11() {
+
+	public JPanel getPanel_11() {
 		if (panel_11 == null) {
 			panel_11 = new JPanel();
 			panel_11.setLayout(null);
@@ -1285,7 +1418,8 @@ public class WarehouseAPP extends JFrame {
 		}
 		return panel_11;
 	}
-	private JLabel getLblEnvio() {
+
+	public JLabel getLblEnvio() {
 		if (lblEnvio == null) {
 			lblEnvio = new JLabel("Envio:");
 			lblEnvio.setFont(null);
@@ -1293,7 +1427,8 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblEnvio;
 	}
-	private JLabel getLblIdenvio() {
+
+	public JLabel getLblIdenvio() {
 		if (lblIdenvio == null) {
 			lblIdenvio = new JLabel("idEnvio");
 			lblIdenvio.setFont(null);
@@ -1301,7 +1436,8 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblIdenvio;
 	}
-	private JLabel getLblTransportista() {
+
+	public JLabel getLblTransportista() {
 		if (lblTransportista == null) {
 			lblTransportista = new JLabel("Transportista:");
 			lblTransportista.setFont(null);
@@ -1309,14 +1445,17 @@ public class WarehouseAPP extends JFrame {
 		}
 		return lblTransportista;
 	}
-	private JComboBox getCmboTransportistas() {
+
+	public JComboBox getCmboTransportistas() {
 		if (cmboTransportistas == null) {
 			cmboTransportistas = new JComboBox();
+			cmboTransportistas.setModel(new DefaultComboBoxModel(new String[] {"DHL", "NACEX", "SEUR", "UPS"}));
 			cmboTransportistas.setBounds(121, 24, 233, 21);
 		}
 		return cmboTransportistas;
 	}
-	private JPanel getPanel_12() {
+
+	public JPanel getPanel_12() {
 		if (panel_12 == null) {
 			panel_12 = new JPanel();
 			panel_12.setLayout(null);
@@ -1327,14 +1466,16 @@ public class WarehouseAPP extends JFrame {
 		}
 		return panel_12;
 	}
-	private JLabel getLblCajasEnEl() {
+
+	public JLabel getLblCajasEnEl() {
 		if (lblCajasEnEl == null) {
 			lblCajasEnEl = new JLabel("CAJAS EN EL ENVIO");
 			lblCajasEnEl.setBounds(25, 0, 329, 25);
 		}
 		return lblCajasEnEl;
 	}
-	private JPanel getPanel_13() {
+
+	public JPanel getPanel_13() {
 		if (panel_13 == null) {
 			panel_13 = new JPanel();
 			panel_13.setLayout(null);
@@ -1345,14 +1486,16 @@ public class WarehouseAPP extends JFrame {
 		}
 		return panel_13;
 	}
-	private JLabel getLblCajasDisponibles() {
+
+	public JLabel getLblCajasDisponibles() {
 		if (lblCajasDisponibles == null) {
 			lblCajasDisponibles = new JLabel("CAJAS DISPONIBLES");
 			lblCajasDisponibles.setBounds(25, 0, 329, 25);
 		}
 		return lblCajasDisponibles;
 	}
-	private JPanel getPanel_14() {
+
+	public JPanel getPanel_14() {
 		if (panel_14 == null) {
 			panel_14 = new JPanel();
 			panel_14.setBackground(Color.WHITE);
@@ -1363,7 +1506,8 @@ public class WarehouseAPP extends JFrame {
 		}
 		return panel_14;
 	}
-	private JTextField getTxtIdcaja() {
+
+	public JTextField getTxtIdcaja() {
 		if (txtIdcaja == null) {
 			txtIdcaja = new JTextField();
 			txtIdcaja.setBounds(60, 42, 255, 26);
@@ -1371,25 +1515,179 @@ public class WarehouseAPP extends JFrame {
 		}
 		return txtIdcaja;
 	}
-	private JLabel getLblIdCaja() {
+
+	public JLabel getLblIdCaja() {
 		if (lblIdCaja == null) {
 			lblIdCaja = new JLabel("Id Caja:");
 			lblIdCaja.setBounds(157, 25, 61, 16);
 		}
 		return lblIdCaja;
 	}
-	private JScrollPane getScrollPane_1() {
+
+	public JScrollPane getScrollPane_1() {
 		if (scrollPane_1 == null) {
 			scrollPane_1 = new JScrollPane();
+			scrollPane_1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			scrollPane_1.getVerticalScrollBar().setPreferredSize(new Dimension(3, 0));
+			scrollPane_1.setViewportBorder(null);
 			scrollPane_1.setBounds(0, 144, 375, 115);
+			scrollPane_1.setBorder(BorderFactory.createEmptyBorder());
 		}
 		return scrollPane_1;
 	}
-	private JScrollPane getScrollPane_2() {
+
+	public JScrollPane getScrollPane_2() {
 		if (scrollPane_2 == null) {
 			scrollPane_2 = new JScrollPane();
+			scrollPane_2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			scrollPane_2.getVerticalScrollBar().setPreferredSize(new Dimension(3, 0));
+			scrollPane_2.setViewportBorder(null);
 			scrollPane_2.setBounds(0, 284, 375, 137);
+			scrollPane_2.setBorder(BorderFactory.createEmptyBorder());
 		}
 		return scrollPane_2;
+	}
+
+	public JLabel getLblUpdate() {
+		if (lblUpdate == null) {
+			lblUpdate = new JLabel("");
+			WarehouseAPP app = this;
+			lblUpdate.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					CursorMode.wait(lblUpdate);
+					pedidosLoader.updateTable(Session.getNotAssignedOrders(), app);
+					CursorMode.normal(lblUpdate);
+				}
+			});
+			lblUpdate.setHorizontalAlignment(SwingConstants.CENTER);
+			lblUpdate.setIcon(
+					new ImageIcon(WarehouseAPP.class.getResource("/com/myshop/warehouse/igu/img/refresh.png")));
+			lblUpdate.setBounds(325, 28, 44, 28);
+		}
+		return lblUpdate;
+	}
+
+	public JLabel getLabel_9() {
+		if (label_9 == null) {
+			label_9 = new JLabel("");
+			WarehouseAPP app = this;
+			label_9.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					CursorMode.wait(label_9);
+					otsLoader.updateTable(Session.getWorkingPlans(Session.almacenero), app);
+					CursorMode.normal(label_9);
+				}
+			});
+			label_9.setIcon(new ImageIcon(WarehouseAPP.class.getResource("/com/myshop/warehouse/igu/img/refresh.png")));
+			label_9.setHorizontalAlignment(SwingConstants.CENTER);
+			label_9.setBounds(325, 28, 44, 28);
+		}
+		return label_9;
+	}
+
+	public JSpinner getSpinner() {
+		if (spinner == null) {
+			spinner = new JSpinner();
+			spinner.setBounds(242, 79, 127, 26);
+			spinner.setModel(new SpinnerNumberModel(1, 1, 99999, 1));
+		}
+		return spinner;
+	}
+
+	public JLabel getLblCantidad() {
+		if (lblCantidad == null) {
+			lblCantidad = new JLabel("Cantidad");
+			lblCantidad.setHorizontalAlignment(SwingConstants.CENTER);
+			lblCantidad.setFont(null);
+			lblCantidad.setBounds(242, 45, 127, 34);
+		}
+		return lblCantidad;
+	}
+
+	public JButton getBtnRecoger() {
+		if (btnRecoger == null) {
+			btnRecoger = new JButton("Recoger");
+			WarehouseAPP app = this;
+			btnRecoger.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (new ReferenciasValidator(getTextField().getText(), (int) getSpinner().getValue(),
+							Session.workingPlan).validate()) {
+
+						getLblMessage().setText("Escaneado correcto");
+						((CardLayout) (getToolsOTIndv().getLayout())).show(getToolsOTIndv(), "feedback");
+						LoadDetallesWorkingPlan.updateTable(Session.workingPlanController);
+
+						new java.util.Timer().schedule(new java.util.TimerTask() {
+							@Override
+							public void run() {
+								((CardLayout) (getToolsOTIndv().getLayout())).show(getToolsOTIndv(), "scanner");
+							}
+						}, 900);
+
+						if (new WorkingPlanCompletedValidator(Session.workingPlan).validate()) {
+							getLblMessage().setText("Hoja de Trabajo Completada");
+							((CardLayout) (getToolsOTIndv().getLayout())).show(getToolsOTIndv(), "feedback");
+							
+							if(new PedidoRecogidoEnteroValidator(Session.workingPlanController).validate()) {
+								getLblMessage().setText("Pedido recogido entero.");
+								((CardLayout) (getToolsOTIndv().getLayout())).show(getToolsOTIndv(), "feedback");
+								((CardLayout) (getContentPane().getLayout())).show(getContentPane(), "vistaOTs");
+								otsLoader.updateTable(Session.getWorkingPlans(Session.almacenero), app);
+							}
+						}
+					} else {
+
+						getLblMessage().setText("Escaneado incorrecto");
+						((CardLayout) (getToolsOTIndv().getLayout())).show(getToolsOTIndv(), "feedback");
+
+						new java.util.Timer().schedule(new java.util.TimerTask() {
+							@Override
+							public void run() {
+								((CardLayout) (getToolsOTIndv().getLayout())).show(getToolsOTIndv(), "scanner");
+							}
+						}, 900);
+					}
+				}
+			});
+			btnRecoger.setBounds(136, 116, 117, 29);
+		}
+		return btnRecoger;
+	}
+	public JPanel getPanel_15() {
+		if (panel_15 == null) {
+			panel_15 = new JPanel();
+			panel_15.setBorder(new MatteBorder(1, 0, 0, 0, SystemColor.lineGray));
+			panel_15.setBackground(Color.WHITE);
+			panel_15.setBounds(0, 444, 375, 64);
+			panel_15.setLayout(new CardLayout(0, 0));
+			panel_15.add(getPnEscanear(), "name_24452575265664");
+			panel_15.add(getPnFeedback(), "name_24470510059151");
+		}
+		return panel_15;
+	}
+	public JPanel getPnEscanear() {
+		if (pnEscanear == null) {
+			pnEscanear = new JPanel();
+		}
+		return pnEscanear;
+	}
+	public JPanel getPnFeedback() {
+		if (pnFeedback == null) {
+			pnFeedback = new JPanel();
+		}
+		return pnFeedback;
+	}
+	public JScrollPane getScPaneEmpaquetadoIndv() {
+		if (scPaneEmpaquetadoIndv == null) {
+			scPaneEmpaquetadoIndv = new JScrollPane();
+			scPaneEmpaquetadoIndv.setBounds(0, 137, 375, 310);
+			scPaneEmpaquetadoIndv.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+			scPaneEmpaquetadoIndv.getVerticalScrollBar().setPreferredSize(new Dimension(3, 0));
+			scPaneEmpaquetadoIndv.setViewportBorder(null);
+			scPaneEmpaquetadoIndv.setBorder(BorderFactory.createEmptyBorder());
+		}
+		return scPaneEmpaquetadoIndv;
 	}
 }

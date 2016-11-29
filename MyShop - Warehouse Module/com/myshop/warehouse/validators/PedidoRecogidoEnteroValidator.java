@@ -33,14 +33,13 @@ public class PedidoRecogidoEnteroValidator implements Validator {
 				}
 			}
 			wpc.getWp().getItems().get(0).getOrderItem().getParent().setStatus(Status.PREPARADO.toString().toUpperCase());
-			String setPendienteEmpaquetado = "UPDATE myshop.order SET myshop.order.status_id=3 WHERE myshop.order.order_id = :order_id";
+			String setPendienteEmpaquetado = "UPDATE myshop.order SET myshop.order.status_id=4 WHERE myshop.order.order_id = :order_id";
 			try(Connection con = DefaultSql2o.SQL2O.open()) {
 				Query query = con.createQuery(setPendienteEmpaquetado);
 				for(WorkingPlanItem wpi: wpc.getWp().getItems())
 					query.addParameter("order_id", wpi.getOrderItem().getParent().getID()).addToBatch();
 				query.executeBatch();
 			}
-			
 		}
 		return true;
 	}

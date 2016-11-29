@@ -61,7 +61,7 @@ public class WorkingPlanGenerator implements Generator {
 	public WorkingPlanGenerator generate(List<Order> orders) {
 		// We create a default wpc pointer to manage different objects inside
 		// the loop.
-		WorkingPlanController wpc = new WorkingPlanController();
+		WorkingPlanController wpc = new WorkingPlanController(-1);
 
 		// We will work over this auxiliary pointer that ponits to all the not
 		// assigned items.
@@ -75,7 +75,7 @@ public class WorkingPlanGenerator implements Generator {
 			} else {
 				if (!wpc.isChild() && wpc.getNumberOfItems() > 0)
 					workingPlans.add(wpc);
-				wpc = new WorkingPlanController();
+				wpc = new WorkingPlanController(-1);
 				WorkingPlanController parent = wpc;
 				List<OrderItem> toDelete = new ArrayList<OrderItem>();
 				for (OrderItem oi : o.getProducts()) {
@@ -84,13 +84,13 @@ public class WorkingPlanGenerator implements Generator {
 						toDelete.add(oi);
 						if (!wpc.isChild() && wpc.getNumberOfItems() > 0)
 							workingPlans.add(wpc);
-						wpc = new WorkingPlanController().setParent(parent);
+						wpc = new WorkingPlanController(-1).setParent(parent);
 					}
 				}
 				o.getProducts().removeAll(toDelete);
 				toDelete.clear();
 				if (wpc.getNumberOfItems() > 0)
-					wpc = new WorkingPlanController().setParent(parent);
+					wpc = new WorkingPlanController(-1).setParent(parent);
 				int i = 0, j = 1;
 				while (i < o.getProducts().size()) {
 					wpc.addItem(o.getProducts().get(i));
@@ -100,7 +100,7 @@ public class WorkingPlanGenerator implements Generator {
 						} else {
 							if (!wpc.isChild() && wpc.getNumberOfItems() > 0)
 								workingPlans.add(wpc);
-							wpc = new WorkingPlanController().setParent(parent);
+							wpc = new WorkingPlanController(-1).setParent(parent);
 						}
 						j++;
 					}
@@ -108,7 +108,7 @@ public class WorkingPlanGenerator implements Generator {
 				}
 				if (!wpc.isChild() && wpc.getNumberOfItems() > 0) {
 					workingPlans.add(wpc);
-					wpc = new WorkingPlanController();
+					wpc = new WorkingPlanController(-1);
 				}
 			}
 		}

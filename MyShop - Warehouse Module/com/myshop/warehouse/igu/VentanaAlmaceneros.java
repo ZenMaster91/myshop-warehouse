@@ -870,7 +870,7 @@ public class VentanaAlmaceneros extends JFrame {
 				public void keyPressed(KeyEvent e) {
 					// Chekear si las tecla es enter.
 					if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-						if (new ReferenciasValidator(txtInpReferencia.getText(),
+						/*if (new ReferenciasValidator(txtInpReferencia.getText(),
 								modeloTablaOrdenTrabajoIndividual.getAllRows()).validate()) {
 							((CardLayout) (getPanel_6().getLayout())).show(getPanel_6(), "pnReferenciaCorrecta");
 							for (WorkingPlanItemController wpic : modeloTablaOrdenTrabajoIndividual.getAllRows()) {
@@ -900,7 +900,7 @@ public class VentanaAlmaceneros extends JFrame {
 							}
 						} else {
 							((CardLayout) (getPanel_6().getLayout())).show(getPanel_6(), "pnReferenciaIncorrecta");
-						}
+						}*/
 						txtInpReferencia.setText("");
 						new java.util.Timer().schedule(new java.util.TimerTask() {
 							@Override
@@ -1104,7 +1104,7 @@ public class VentanaAlmaceneros extends JFrame {
 			modeloTablaPedidosPorEmpaquetar = new DefaultNonEditableTableModel<>(columNames, 0);
 			updatearVentanaEmpaquetadoPedidos();
 		}
-		
+
 	}
 
 	private void iniciarVentanaEmpaquetadoPedido(Order o) throws Exception {
@@ -1362,7 +1362,7 @@ public class VentanaAlmaceneros extends JFrame {
 										// TODO Auto-generated catch block
 										e1.printStackTrace();
 									}
-									
+
 								}
 							}
 							((CardLayout) (getPanel_10().getLayout())).show(getPanel_10(), "correcta");
@@ -1387,7 +1387,7 @@ public class VentanaAlmaceneros extends JFrame {
 						}
 						txtEntradaReferenciaEmpaquetado.setText("");
 						txtEntradaReferenciaEmpaquetado.requestFocus();
-						
+
 					}
 				}
 			});
