@@ -209,6 +209,7 @@ public class WarehouseAPP extends JFrame {
 	private JLabel lblAbrorCaja;
 	private JButton btnNewButton;
 	private JLabel label_13;
+	private JLabel lblBell;
 
 	/**
 	 * Launch the application.
@@ -829,6 +830,7 @@ public class WarehouseAPP extends JFrame {
 			panel_7.add(getArticulosOTIdnv());
 			panel_7.add(getLblpesoOTIdiv());
 			panel_7.add(getPesoOTIndv());
+			panel_7.add(getLblBell());
 		}
 		return panel_7;
 	}
@@ -1964,5 +1966,22 @@ public class WarehouseAPP extends JFrame {
 			label_13.setBounds(325, 28, 44, 28);
 		}
 		return label_13;
+	}
+	private JLabel getLblBell() {
+		if (lblBell == null) {
+			lblBell = new JLabel("");
+			lblBell.addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent e) {
+					if(Session.workingPlan.incidence == null) {
+						
+					}
+				}
+			});
+			lblBell.setHorizontalAlignment(SwingConstants.CENTER);
+			lblBell.setIcon(new ImageIcon(WarehouseAPP.class.getResource("/com/myshop2/ui/icons/bell_normal.png")));
+			lblBell.setBounds(308, 6, 61, 61);
+		}
+		return lblBell;
 	}
 }

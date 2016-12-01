@@ -104,6 +104,7 @@ public class WarehouseKeeperController {
 			} else {
 				i = null;
 			}
+			wpc.getWp().incidence = i;
 			System.out.println(5);
 			if (m.get("mail_box_id") != null) {
 				mB = new MailBox((int) m.get("mail_box_id"));
