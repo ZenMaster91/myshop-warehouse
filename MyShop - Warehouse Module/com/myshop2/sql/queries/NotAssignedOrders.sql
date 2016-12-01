@@ -13,5 +13,5 @@ FROM
         AND o.product_id = oi.product_id
 WHERE
     o.working_plan_id IS NULL
-        AND (ord.status_id = 2 OR ord.status_id = 6)
+        AND (ord.status_id = 2 OR ord.status_id = 8)
 ORDER BY o.order_id ASC
