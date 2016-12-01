@@ -16,5 +16,5 @@ FROM
         LEFT JOIN
     myshop.shipment AS s ON mb.shipment_id = s.shipment_id
 WHERE
-    (ord.status_id = 4 OR ord.status_id = 5) AND s.sent=0
+    (ord.status_id = 4 OR ord.status_id = 5) AND (s.sent=0 OR sent IS NULL)
 ORDER BY o.date_received
