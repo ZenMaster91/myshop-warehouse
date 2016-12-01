@@ -1,20 +1,14 @@
 package com.myshop.warehouse.validators;
 
-import java.util.Date;
-import java.util.List;
-
 import org.sql2o.Connection;
 import org.sql2o.Query;
 
 import com.myshop.model.workingPlan.WorkingPlan;
 import com.myshop.model.workingPlan.WorkingPlanItem;
-import com.myshop.warehouse.controllers.WorkingPlanController;
-import com.myshop.warehouse.controllers.WorkingPlanItemController;
 import com.myshop.warehouse.util.DefaultSql2o;
 
 public class ReferenciasValidator implements Validator {
 
-	private List<WorkingPlanItemController> productos;
 	private WorkingPlan wpc;
 	private String id;
 	private int quantity;

@@ -12,7 +12,7 @@ public class FactorEstiba {
 	}
 	
 	public boolean validate() {
-		if(this.weight < WorkingPlanGenerator.MAX_WP_LOAD && this.vol/1000000 < WorkingPlanGenerator.MAX_WP_VOL)
+		if((this.weight <= WorkingPlanGenerator.MAX_WP_LOAD) && ((this.vol/1000000) <= WorkingPlanGenerator.MAX_WP_VOL))
 			return true;
 		return false;
 	}

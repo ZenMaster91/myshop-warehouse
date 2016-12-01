@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
@@ -24,22 +23,15 @@ import com.myshop2.ui.renderers.BodyCellRenderer;
 import com.myshop2.ui.renderers.Caption2CellRenderer;
 import com.myshop2.ui.renderers.TitleCellRenderer;
 
-import javafx.scene.control.SelectionModel;
-
 public class LoadPedidosInEmpaquetado {
 
 	private static int nOrders = 0;
 	private static DefaultNonEditableTableModel<OrderController> model;
 	private static Component component;
+	JTable table = new JTable();
 
 	public Component loadAsTable(List<Order> orders, WarehouseAPP app) {
 
-		if (orders.size() == 0) {
-			component = new FullSimpleMessagePanel("No hay pedidos");
-			return component;
-		}
-
-		JTable table = new JTable();
 		String[] columNames = { "ID Pedido", "Nº Objetos", "Fecha Pedido" };
 		model = new DefaultNonEditableTableModel<>(columNames, 3);
 		table.setModel(model);
@@ -51,19 +43,20 @@ public class LoadPedidosInEmpaquetado {
 		table.getTableHeader().setReorderingAllowed(false);
 		table.getTableHeader().setResizingAllowed(false);
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
+
 		table.addMouseListener(MouseAdapterOrderEmpaquetadoListPanel.getFromTable(table, app));
-		
+
 		updateTable(orders, app);
-		component = table;
 		return component;
 	}
 
 	private void updateTable(List<Order> orders, WarehouseAPP app) {
 		nOrders = 0;
-		if(model == null || orders.size() == 0) {
-			loadAsTable(orders, app);
-			return;
+		
+		if (model == null || orders.size() == 0) {
+			component = new FullSimpleMessagePanel("No hay pedidos para empaquetar");
+		} else {
+			component = table;
 		}
 		
 		model.removeAll();
@@ -78,8 +71,10 @@ public class LoadPedidosInEmpaquetado {
 			}
 			nOrders++;
 		}
+		
 		model.fireTableDataChanged();
-		//updateReferences(app);
+		updateReferences(app);
+		app.getScPaneEmpaquetado().getViewport().setView(component);
 	}
 
 	public static Container load(List<Order> orders, int width, Container detail, String detailView,
@@ -141,6 +136,16 @@ public class LoadPedidosInEmpaquetado {
 		int size = Math.max(14, cont.getComponentCount());
 		cont.setLayout(new GridLayout(size, 0));
 		return cont;
+	}
+
+	private static void updateReferences(WarehouseAPP app) {
+		if (numberOfOrders() == 0) {
+			app.getLblEmpaquetar_1().setText("Empaquetado");
+			app.getLabel_1_1().setText("Empaquetado");
+		} else {
+			app.getLblEmpaquetar_1().setText("Empaquetado (" + numberOfOrders() + ")");
+			app.getLabel_1_1().setText("Empaquetado (" + numberOfOrders() + ")");
+		}
 	}
 
 	public static int numberOfOrders() {

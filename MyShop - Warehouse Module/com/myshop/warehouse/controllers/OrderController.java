@@ -32,6 +32,7 @@ import com.myshop2.sql.QueryLoader;
 public class OrderController implements Comparable<OrderController> {
 
 	private Order o;
+	
 
 	public OrderController() {
 	}
@@ -43,7 +44,7 @@ public class OrderController implements Comparable<OrderController> {
 	public double getWeight(Order o) {
 		double aux = 0.0;
 		for (OrderItem oi : o.getProducts()) {
-			aux += oi.getProduct().getWeight();
+			aux += oi.getProduct().getWeight()*oi.getQuantity();
 		}
 		return aux;
 	}
@@ -99,7 +100,7 @@ public class OrderController implements Comparable<OrderController> {
 			p.setDimensions(new Dimension3D((double) m.get("heigth"), (double) m.get("weigth"), (double) m.get("deep")));
 			// System.out.println("Producto " + p.getID() + " procesado");
 
-			OrderItem oi = new OrderItem((int) m.get("order_item_id"), (int) m.get("quantity"), p, null, null);
+			OrderItem oi = new OrderItem((int) m.get("order_item_id"), (int) m.get("quantity"), p, null, null, (int) m.get("items_packaged"));
 			oi.setParent(o);
 			// System.out.println("Producto " + p.getID() + " procesado con " +
 			// oi.getQuantity() + " unidades añadidas");
@@ -139,7 +140,7 @@ public class OrderController implements Comparable<OrderController> {
 			if (((int) m.get("order_id")) != last) {
 				if (o.getProducts().size() > 0) {
 					 //System.out.println("Orden no asignada: " + o.getID() + " con " + o.getProducts().size() + " prod.");
-					aux.add(o);
+					aux.add(o); // -------
 				}
 				System.out.println("E"+3);
 				o = new Order();
@@ -170,6 +171,7 @@ public class OrderController implements Comparable<OrderController> {
 			Product p = new Product((int) m.get("product_id"), (int) m.get("stock"), (String) m.get("name"),
 					(String) m.get("description"), (double) m.get("weight"), (double) m.get("price"), c, c, pl,
 					(double) m.get("company_price"));
+			p.setDimensions(new Dimension3D((double) m.get("heigth"), (double) m.get("weigth"), (double) m.get("deep")));
 			// System.out.println("Producto " + p.getID() + " procesado");
 			System.out.println("E"+7);
 			Incidence i = null;
@@ -183,7 +185,7 @@ public class OrderController implements Comparable<OrderController> {
 				mb = new MailBox((int) m.get("mail_box"));
 			}
 			System.out.println("E"+8);
-			OrderItem oi = new OrderItem((int) m.get("order_item_id"), (int) m.get("quantity"), p, i, mb);
+			OrderItem oi = new OrderItem((int) m.get("order_item_id"), (int) m.get("quantity"), p, i, mb, (int) m.get("items_packaged"));
 			oi.setParent(o);
 			// System.out.println("Producto " + p.getID() + " procesado con " +
 			// oi.getQuantity() + " unidades añadidas");
@@ -204,7 +206,7 @@ public class OrderController implements Comparable<OrderController> {
 		if (o.getProducts().size() > 0) {
 			// System.out.println("Orden no asignada: " + o.getID() + " con " +
 			// o.getProducts().size() + " prod.");
-			aux.add(o);
+			aux.add(o); // --------
 			System.out.println("E"+10);
 		}
 		System.out.println("E"+11);

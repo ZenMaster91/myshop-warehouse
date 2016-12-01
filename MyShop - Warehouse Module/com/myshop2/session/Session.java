@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.myshop.model.order.Order;
+import com.myshop.model.shipment.Shipment;
 import com.myshop.model.warehouseKeeper.WarehouseKeeper;
 import com.myshop.model.workingPlan.WorkingPlan;
+import com.myshop.warehouse.controllers.MailBoxController;
 import com.myshop.warehouse.controllers.OrderController;
 import com.myshop.warehouse.controllers.WarehouseKeeperController;
 import com.myshop.warehouse.controllers.WorkingPlanController;
@@ -21,6 +23,8 @@ public class Session {
 	
 	public static boolean isAlmaceneroOccupied = false;
 	public static WorkingPlanController workingPlanController;
+	public static MailBoxController mailbox;
+	public static Shipment shipment;
 	
 	public static List<WorkingPlanController> getWorkingPlans() {
 		List<WorkingPlanController> aux = new WarehouseKeeperController().getCurrentWorkingPlan(almacenero);
@@ -56,5 +60,9 @@ public class Session {
 			e.printStackTrace();
 		}	
 		return ordersToPackage;
+	}
+
+	public static List<MailBoxController> getAvaliableBoxes() {
+		return MailBoxController.getReadyMailBoxes();
 	}
 }

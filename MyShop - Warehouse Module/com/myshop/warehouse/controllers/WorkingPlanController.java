@@ -13,6 +13,7 @@ import com.myshop.model.warehouseKeeper.WarehouseKeeper;
 import com.myshop.model.workingPlan.WorkingPlan;
 import com.myshop.model.workingPlan.WorkingPlanItem;
 import com.myshop.warehouse.util.DefaultSql2o;
+import com.myshop2.maths.FactorEstiba;
 import com.myshop2.sql.QueryLoader;
 
 public class WorkingPlanController implements Comparable<WorkingPlanController> {
@@ -58,7 +59,11 @@ public class WorkingPlanController implements Comparable<WorkingPlanController> 
 	 * @return the number of items in the list.
 	 */
 	public int getNumberOfItems() {
-		return this.wp.getItems().size();
+		int cant = 0;
+		for(WorkingPlanItem wpi : this.wp.getItems()) {
+			cant += wpi.getOrderItem().getQuantity();
+		}
+		return cant;
 	}
 
 	/**
@@ -67,6 +72,7 @@ public class WorkingPlanController implements Comparable<WorkingPlanController> 
 	 */
 	public WorkingPlanController addItem(OrderItem orderItem) {
 		this.wp.getItems().add(new WorkingPlanItem(orderItem, false));
+		System.out.println(">> Adding Item: " + orderItem.getID() + " to WP: " +this.wp.getID());
 		return this;
 	}
 	
@@ -161,13 +167,13 @@ public class WorkingPlanController implements Comparable<WorkingPlanController> 
 		return ((Integer) this.wp.hashCode()).compareTo(o.getWp().hashCode());
 	}
 	
-	public static void assignWK(WarehouseKeeper wk, WorkingPlanController... wpcs) {
+	public void assignWK(WarehouseKeeper wk, WorkingPlanController... wpcs) {
 		for(WorkingPlanController wpc : wpcs) {
 			assign(wpc, wk);
 		}
 	}
 
-	public static void assign(WorkingPlanController wpc, WarehouseKeeper almacenero) {
+	public void assign(WorkingPlanController wpc, WarehouseKeeper almacenero) {
 
 		// WorkingPlan wp = new WorkingPlan(-1, almacenero, wpc.getItems());
 		wpc.assignWareHouseKeeper(almacenero);
@@ -187,13 +193,13 @@ public class WorkingPlanController implements Comparable<WorkingPlanController> 
 			wp_id = (int) (long) con.createQuery(insertWorkingPlan, true).addParameter("wk_id", almacenero.getID())
 					.executeUpdate().getKey();
 		}
-		
+		System.out.println(">>> Created the WorkingPlan: " + wp_id);
 		String insertWorkingPlanItem = "UPDATE myshop.order_item SET myshop.order_item.working_plan_id = :wp_id, myshop.order_item.collected = :col WHERE myshop.order_item.order_item_id = :oi_id";
 		try (Connection con = DefaultSql2o.SQL2O.beginTransaction()) {
 			Query query = con.createQuery(insertWorkingPlanItem);
 
 			for (WorkingPlanItem wpi : wpc.getItems()) {
-				System.out.println("OrderItem_ID: " + wpi.getOrderItem().getID());
+				System.out.println(">>>> Assigning WP:" + wp_id + " to OrderItem_ID: " + wpi.getOrderItem().getID());
 				query.addParameter("oi_id", wpi.getOrderItem().getID()).addParameter("wp_id", wp_id)
 						.addParameter("col", false).addToBatch();
 			}
@@ -203,10 +209,6 @@ public class WorkingPlanController implements Comparable<WorkingPlanController> 
 							// automatically rollback.
 		}
 		wpc.getWp().setID(wp_id);
-		// Assign the children...
-		for (WorkingPlanController wpcC : wpc.getChilds()) {
-			assign(wpcC, almacenero);
-		}
 	}
 
 	public List<WorkingPlanController> asController(List<WorkingPlan> wps) {
@@ -229,6 +231,12 @@ public class WorkingPlanController implements Comparable<WorkingPlanController> 
 		List<WorkingPlanController> aux = new ArrayList<WorkingPlanController>();
 		aux.add(this);
 		return aux;
+	}
+	
+	public boolean canAdd(OrderItem oi) {
+		return new FactorEstiba((getTotalVolume() + (oi.getProduct().getDimensions().calculateVolume()*oi.getQuantity())),
+				
+				(getTotalWeight() + (oi.getProduct().getWeight()*oi.getQuantity()))).validate();
 	}
 
 }

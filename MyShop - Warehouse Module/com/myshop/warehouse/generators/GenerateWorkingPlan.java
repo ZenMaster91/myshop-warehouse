@@ -2,6 +2,7 @@ package com.myshop.warehouse.generators;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import com.myshop.model.order.Order;
 import com.myshop.model.order.OrderItem;
@@ -18,7 +19,7 @@ public class GenerateWorkingPlan {
 		// Teniendo en cuenta que la lista está ordenada mostrando en primer
 		// lugar la orden seleccionada.
 		for (Order order : orders) {
-			System.out.println("Order with: " + order.getProducts().size());
+			System.out.println("Order with: " + new OrderController(order).getNumberOfItems());
 			// Si es más pequeña que el añadido al valor de estiva se añade al
 			// working plan.
 			System.out.println("V: " + new OrderController(order).getVolume() + workingPlan.getTotalVolume());
@@ -43,13 +44,12 @@ public class GenerateWorkingPlan {
 		WorkingPlanController parent = workingPlan;
 		List<OrderItem> toDelete = new ArrayList<OrderItem>();
 		for (OrderItem oi : o.getProducts()) {
-			if (workingPlan.getNumberOfItems() < 1 && (oi.getProductWeight() > WorkingPlanGenerator.MAX_WP_LOAD
-					&& oi.getProduct().getDimensions().calculateVolume() > WorkingPlanGenerator.MAX_WP_VOL)) {
+			if (workingPlan.getNumberOfItems() < 1 && workingPlan.canAdd(oi)) {
 				workingPlan.addItem(oi);
 				toDelete.add(oi);
 				if (!workingPlan.isChild() && workingPlan.getNumberOfItems() > 0)
 					workingPlans.add(workingPlan);
-				workingPlan = new WorkingPlanController(-1).setParent(parent);
+				workingPlan = new WorkingPlanController(-1);
 			}
 		}
 		o.getProducts().removeAll(toDelete);
@@ -60,15 +60,12 @@ public class GenerateWorkingPlan {
 		while (i < o.getProducts().size()) {
 			workingPlan.addItem(o.getProducts().get(i));
 			while (j < o.getProducts().size()) {
-				if ((workingPlan.getTotalWeight()
-						+ o.getProducts().get(j).getProductWeight() <= WorkingPlanGenerator.MAX_WP_LOAD)
-						&& (workingPlan.getTotalVolume() + o.getProducts().get(j).getProduct().getDimensions()
-								.calculateVolume() <= WorkingPlanGenerator.MAX_WP_VOL)) {
+				if (workingPlan.canAdd(o.getProducts().get(j))) {
 					workingPlan.addItem(o.getProducts().get(j));
 				} else {
 					if (!workingPlan.isChild() && workingPlan.getNumberOfItems() > 0)
 						workingPlans.add(workingPlan);
-					workingPlan = new WorkingPlanController(-1).setParent(parent);
+					workingPlan = new WorkingPlanController(-1);
 				}
 				j++;
 			}
@@ -84,25 +81,37 @@ public class GenerateWorkingPlan {
 
 	private static List<WorkingPlanController> generateFromSingleSimple(Order o) {
 		List<WorkingPlanController> workingPlans = new ArrayList<WorkingPlanController>();
+		
 		WorkingPlanController workingPlan = new WorkingPlanController(-1);
-		WorkingPlanController parent = workingPlan;
+		
+		//WorkingPlanController parent = workingPlan;
+		Random rnd = new Random();
 		for (OrderItem oi : o.getProducts()) {
-			if (new FactorEstiba(workingPlan.getTotalVolume() + oi.getProduct().getDimensions().calculateVolume(),
-					workingPlan.getTotalWeight() + oi.getProduct().getWeight()).validate()) {
+			
+			if (workingPlan.canAdd(oi)) {
+				System.out.println(">> Addind to the same workingPlan");
+				
 				if(oi!=null)
 					workingPlan.addItem(oi);
+			
 			} else {
-				workingPlan = new WorkingPlanController(-1).setParent(parent);
+				System.out.println(">> Addind to diferent workingPlan");
+				workingPlan = new WorkingPlanController(rnd.nextInt(Integer.MAX_VALUE));
+				
 				if(oi!=null)
 					workingPlan.addItem(oi);
+			
 			}
 			
-			if(!workingPlan.isChild() && workingPlan.getItems().size() > 0) {
+			if(!workingPlan.isChild() && workingPlan.getNumberOfItems() > 0) {
+				
 				System.out.println("Generating OT -> WP with: " + workingPlan.getNumberOfItems() + " items");
+				
 				workingPlans.add(workingPlan);
 			}
 
 		}
+		
 		return workingPlans;
 	}
 
@@ -119,6 +128,7 @@ public class GenerateWorkingPlan {
 		if (false/* orders.contains(order) */) {
 			throw new IllegalArgumentException("The order " + order.getID() + " is not in the list of orders.");
 		} else {
+			System.out.println("--> Voúmen: " + new OrderController(order).getVolume() + " || Peso: " + new OrderController().getWeight(order));
 			if (new FactorEstiba(new OrderController(order).getVolume(), new OrderController().getWeight(order))
 					.validate()) {
 				// La orden se puede meter en la oja de trabajo de forma directa
@@ -148,7 +158,7 @@ public class GenerateWorkingPlan {
 		for (WorkingPlanController wpc : generate(order, orders)) {
 			System.out.println(wpc.getWp().getID() + ": " + wpc.getNumberOfItems() + " : " + wpc.getTotalVolume()
 					+ "cm3 : " + wpc.getTotalWeight() + "kg");
-			WorkingPlanController.assign(wpc, wk);
+			new WorkingPlanController(-1).assign(wpc, wk);
 		}
 	}
 

@@ -479,13 +479,13 @@ public class VentanaAlmaceneros extends JFrame {
 						WorkingPlanController wpc = modeloTablaPedidosPorRecogerAlmacen
 								.getObjectAtRow(getTbOTsPendientes().getSelectedRow());
 
-						if (!bussy) {
-							if (wpc.isChild())
-								WorkingPlanController.assign(wpc.getParent(), almacenero);
-							else {
-								WorkingPlanController.assign(wpc, almacenero);
-							}
-						}
+						//if (!bussy) {
+						//	if (wpc.isChild())
+								//WorkingPlanController.assign(wpc.getParent(), almacenero);
+							//else {
+								//WorkingPlanController.assign(wpc, almacenero);
+							//}
+						//}
 
 						iniciarVentanaOrdenTrabajo();
 

@@ -11,7 +11,9 @@ import com.myshop.model.order.Order;
 import com.myshop.model.order.OrderItem;
 import com.myshop.warehouse.controllers.OrderItemController;
 import com.myshop.warehouse.igu.DefaultNonEditableTableModel;
+import com.myshop2.maths.DimensionsInterpreter;
 import com.myshop2.ui.panels.DefaultListPanelSmall;
+import com.myshop2.ui.renderers.BodyCellRenderer;
 import com.myshop2.ui.renderers.Caption2CellRenderer;
 import com.myshop2.ui.renderers.TitleCellRenderer;
 
@@ -22,18 +24,19 @@ public class LoadDetallesPedido {
 
 	public static JTable loadAsTable(Order order, int width) {
 		JTable table = new JTable();
-		String[] columNames = { "ID Producto", "Cantidad", "Pasillo", "Lado", "Posicion", "Altura" };
-		model = new DefaultNonEditableTableModel<>(columNames, 6);
+		String[] columNames = { "ID Producto", "Cantidad", "Peso", "Dimensiones",  "U. Empa." };
+		model = new DefaultNonEditableTableModel<>(columNames, 5);
 		table.setModel(model);
 		table.setRowHeight(30);
 		table.getColumn("ID Producto").setCellRenderer(new TitleCellRenderer());
-		table.getColumn("Cantidad").setCellRenderer(new TitleCellRenderer());
-		table.getColumn("Pasillo").setCellRenderer(new TitleCellRenderer());
-		table.getColumn("Lado").setCellRenderer(new TitleCellRenderer());
-		table.getColumn("Posicion").setCellRenderer(new TitleCellRenderer());
-		table.getColumn("Altura").setCellRenderer(new TitleCellRenderer());
+		table.getColumn("Cantidad").setCellRenderer(new BodyCellRenderer());
+		table.getColumn("Peso").setCellRenderer(new BodyCellRenderer());
+		table.getColumn("Dimensiones").setCellRenderer(new BodyCellRenderer());
+		table.getColumn("U. Empa.").setCellRenderer(new BodyCellRenderer());
 		table.getColumn("ID Producto").setMinWidth(50);
-		table.getColumn("Lado").setMinWidth(70);
+		table.getColumn("Cantidad").setMaxWidth(50);
+		table.getColumn("Peso").setMaxWidth(50);
+		table.getColumn("Dimensiones").setMinWidth(100);
 		table.getTableHeader().setDefaultRenderer(new Caption2CellRenderer());
 		table.setEnabled(false);
 		table.getTableHeader().setReorderingAllowed(false);
@@ -48,9 +51,9 @@ public class LoadDetallesPedido {
 		model.removeAll();
 		for (OrderItem oi : o.getProducts()) {
 			try {
-				model.addRow(new OrderItemController(oi), oi.getID(), oi.getQuantity(),
-						oi.getProductProductLocationCorridor(), oi.getProductProductLocationSide(),
-						oi.getProductProductLocationPosition(), oi.getProductProductLocationHeight());
+				model.addRow(new OrderItemController(oi), oi.getProduct().getID(), oi.getQuantity(),
+						oi.getProduct().getWeight(), new DimensionsInterpreter(oi.getProduct().getDimensions()).toString(),
+						oi.itemsPackaged);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

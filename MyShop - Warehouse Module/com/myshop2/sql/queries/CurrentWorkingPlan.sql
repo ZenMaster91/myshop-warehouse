@@ -22,7 +22,8 @@ SELECT
     oi.order_item_id,
     s.name AS 'status',
     oi.quantity,
-    oi.collected
+    oi.collected,
+    oi.items_packaged
 FROM
     myshop.working_plan AS wp
         LEFT JOIN
@@ -36,7 +37,9 @@ FROM
         LEFT JOIN
     myshop.incidence AS i ON wp.incidence_id = i.incidence_id
         LEFT JOIN
-    myshop.mail_box AS mb ON oi.order_item_id = mb.order_item_id
+    myshop.order_item_mailBox_rel AS mb_rel ON oi.order_item_id = mb_rel.order_item_id
+        LEFT JOIN
+    myshop.mail_box AS mb ON mb_rel.mail_box_id = mb.mail_box_id
 WHERE
     wk_id = :id AND wp.date_completed IS NULL
         AND p.product_id IS NOT NULL

@@ -2,11 +2,14 @@ package com.myshop.warehouse.controllers;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.sql2o.Connection;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.myshop.model.order.Incidence;
 import com.myshop.model.order.MailBox;
 import com.myshop.model.order.Order;
@@ -19,6 +22,7 @@ import com.myshop.model.warehouseKeeper.WarehouseKeeper;
 import com.myshop.model.workingPlan.WorkingPlan;
 import com.myshop.model.workingPlan.WorkingPlanItem;
 import com.myshop.warehouse.util.DefaultSql2o;
+import com.myshop2.deserializer.WorkingPlanControllerDeserializar;
 import com.myshop2.sql.QueryLoader;
 
 public class WarehouseKeeperController {
@@ -53,20 +57,37 @@ public class WarehouseKeeperController {
 		WorkingPlanController wpc = null;
 		int lastWpID = -1, nItem = 0;
 		System.out.println(1);
-		for (Map<String, Object> m : map) {
+		for (Map<String, Object> m : map) {			
+
+			System.out.println(">> Processing: " + m.get("wp_id"));
+			for(Object o : m.values())
+				if(o!=null)
+					System.out.println(o.toString());
+			
+			// Cómo es la primera fila que leemos...
 			if (nItem == 0) {
 				lastWpID = (int) m.get("wp_id");
 				wpc = new WorkingPlanController((int) m.get("wp_id"));
 				wpc.getWp().setGenerated(((Date) m.get("date_created")));
+			} else if(lastWpID != (int) m.get("wp_id")) {
+				wpc.assignWareHouseKeeper(wk);
+				toReturn.add(wpc);
+				lastWpID = (int) m.get("wp_id");
+				wpc = new WorkingPlanController((int) m.get("wp_id"));
+				wpc.getWp().setGenerated(((Date) m.get("date_created")));
 			}
+			
+			/*
 			if (nItem == 1 && (int) m.get("wp_id") != lastWpID) {
 				wpc.getWp().setID((int) m.get("wp_id"));
 				wpc.assignWareHouseKeeper(wk);
+				System.err.print(">> Adding to the currentWorkingPlans: ");
 				wpc.print();
 				toReturn.add(wpc);
 				wpc = new WorkingPlanController((int) m.get("wp_id"));
 				wpc.getWp().setGenerated(((Date) m.get("date_created")));
 			}
+			*/
 			System.out.println(2);
 			nItem++;
 
@@ -90,7 +111,8 @@ public class WarehouseKeeperController {
 				mB = null;
 			}
 			System.out.println(6);
-			oi = new OrderItem((int) m.get("order_item_id"), (int) m.get("quantity"), p, i, mB);
+			oi = new OrderItem((int) m.get("order_item_id"), (int) m.get("quantity"), p, i, mB, (int) m.get("items_packaged"));
+			//wpc.getWp().setID((int) m.get("wp_id")); // <--------
 			System.out.println(5.11);
 			Order o = new Order();
 			o.setID((int) m.get("order_id"));
@@ -104,9 +126,11 @@ public class WarehouseKeeperController {
 			else
 				wpc.addItem(new WorkingPlanItem(oi, false, (int) m.get("items_collected")));
 			System.out.println(5.2);
-			if ((int) m.get("wp_id") != lastWpID) {
+			
+			/*if ((int) m.get("wp_id") != lastWpID) {
 				wpc.getWp().setID((int) m.get("wp_id"));
 				wpc.assignWareHouseKeeper(wk);
+				System.err.print(">> Adding to the currentWorkingPlans: ");
 				wpc.print();
 				toReturn.add(wpc);
 				wpc = new WorkingPlanController((int) m.get("wp_id"));
@@ -118,7 +142,7 @@ public class WarehouseKeeperController {
 				 * toReturn.add(wpc); wpc.print(); System.out.print("  this");
 				 * //items = new ArrayList<WorkingPlanItem>();
 				 */
-			}
+			/*}*/
 			/*
 			 * wpc = new WorkingPlanController(new WorkingPlan((int)
 			 * m.get("wp_id"), wk, new ArrayList<WorkingPlanItem>()));
@@ -126,8 +150,9 @@ public class WarehouseKeeperController {
 			 * items.size());
 			 */
 			if (nItem == map.size() && wpc.getNumberOfItems() > 0) {
-				toReturn.add(wpc);
+				System.err.print(">> Adding to the currentWorkingPlans: ");
 				wpc.print();
+				toReturn.add(wpc);
 			}
 
 			lastWpID = (int) m.get("wp_id");
@@ -136,7 +161,7 @@ public class WarehouseKeeperController {
 		return toReturn;
 	}
 	
-	public List<WorkingPlanController> getCurrentWorkingPlan(WarehouseKeeper wk, WorkingPlan wp) {
+	private List<WorkingPlanController> getCurrentWorkingPlan(WarehouseKeeper wk, WorkingPlan wp) {
 		List<WorkingPlanController> toReturn = new ArrayList<WorkingPlanController>();
 		List<Map<String, Object>> map = null;
 		try (Connection con = DefaultSql2o.SQL2O.open()) {
@@ -189,7 +214,7 @@ public class WarehouseKeeperController {
 				mB = null;
 			}
 			System.out.println(6);
-			oi = new OrderItem((int) m.get("order_item_id"), (int) m.get("quantity"), p, i, mB);
+			oi = new OrderItem((int) m.get("order_item_id"), (int) m.get("quantity"), p, i, mB, (int) m.get("items_packaged"));
 			System.out.println(5.11);
 			Order o = new Order();
 			o.setID((int) m.get("order_id"));
