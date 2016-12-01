@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import com.myshop.model.order.Incidence;
 import com.myshop.model.order.MailBox;
 import com.myshop.model.order.OrderItem;
 import com.myshop.warehouse.controllers.IncidenceController;
@@ -15,6 +16,7 @@ import com.myshop.warehouse.controllers.MailBoxController;
 import com.myshop.warehouse.controllers.OrderController;
 import com.myshop.warehouse.controllers.ShipmentController;
 import com.myshop.warehouse.controllers.WarehouseKeeperController;
+import com.myshop.warehouse.controllers.WorkingPlanController;
 import com.myshop.warehouse.generators.GenerateWorkingPlan;
 import com.myshop.warehouse.validators.EmpaquetadoValidator;
 import com.myshop.warehouse.validators.MailBoxShipmentReaderValidator;
@@ -401,11 +403,11 @@ public class WarehouseAPP extends JFrame {
 				.setView(empaquetadoLoader.loadAsTable(Session.getPendientesEmpaquetado(), this));
 		loadEnviosInView();
 	}
-	
+
 	public void loadEnviosInView() {
 		List<ShipmentController> aux = ShipmentController.getOpened(Session.almacenero);
 		getScPaneEnvios().getViewport().setView(LoadEnviosAbiertos.loadAsTable(aux, this));
-		if(aux.size() > 0) {
+		if (aux.size() > 0) {
 			getLabel_5().setEnabled(false);
 		} else {
 			getLabel_5().setEnabled(true);
@@ -528,7 +530,7 @@ public class WarehouseAPP extends JFrame {
 						CursorMode.normal(lblGenerarOt);
 						otsLoader.updateTable(Session.getWorkingPlans(Session.almacenero), app);
 					}
-					
+
 				}
 			});
 			lblGenerarOt.setIconTextGap(8);
@@ -996,7 +998,7 @@ public class WarehouseAPP extends JFrame {
 						PrinterWindow.main(args);
 						String[] args2 = { new OrderController(Session.order).printBill() };
 						PrinterWindow.main(args2);
-						
+
 						if (new PedidoEmpaquetadoEnteroValidator(Session.order).validate()) {
 							System.out.println("Escaneo Correcto Y Completado");
 							getLblEmpaquetadoMessage().setText("Escaneado correcto Y Completado");
@@ -1383,8 +1385,8 @@ public class WarehouseAPP extends JFrame {
 						getScrollPane_2()
 								.setViewportView(LoadCajasDisponibles.loadAsTable(Session.getAvaliableBoxes()));
 						new ShipmentController().create();
-						getScrollPane_1()
-						.setViewportView(LoadBoxesInShipment.loadAsTable(new ShipmentController(Session.shipment).getAsController()));
+						getScrollPane_1().setViewportView(LoadBoxesInShipment
+								.loadAsTable(new ShipmentController(Session.shipment).getAsController()));
 					}
 				}
 			});
@@ -1535,7 +1537,8 @@ public class WarehouseAPP extends JFrame {
 			cmboTransportistas = new JComboBox();
 			cmboTransportistas.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					new ShipmentController(Session.shipment).changeTransporter((String) cmboTransportistas.getModel().getSelectedItem());
+					new ShipmentController(Session.shipment)
+							.changeTransporter((String) cmboTransportistas.getModel().getSelectedItem());
 				}
 			});
 			cmboTransportistas.setModel(new DefaultComboBoxModel(new String[] { "DHL", "NACEX", "SEUR", "UPS" }));
@@ -1854,7 +1857,7 @@ public class WarehouseAPP extends JFrame {
 						// -->
 						// LoadDetallesWorkingPlan.updateTable(Session.workingPlanController);
 						LoadDetallesPedido.updateTable(Session.order);
-						
+
 						new java.util.Timer().schedule(new java.util.TimerTask() {
 							@Override
 							public void run() {
@@ -1953,6 +1956,7 @@ public class WarehouseAPP extends JFrame {
 		}
 		return btnNewButton;
 	}
+
 	private JLabel getLabel_13() {
 		if (label_13 == null) {
 			label_13 = new JLabel("");
@@ -1964,20 +1968,31 @@ public class WarehouseAPP extends JFrame {
 					CursorMode.normal(label_13);
 				}
 			});
-			label_13.setIcon(new ImageIcon(WarehouseAPP.class.getResource("/com/myshop/warehouse/igu/img/refresh.png")));
+			label_13.setIcon(
+					new ImageIcon(WarehouseAPP.class.getResource("/com/myshop/warehouse/igu/img/refresh.png")));
 			label_13.setHorizontalAlignment(SwingConstants.CENTER);
 			label_13.setBounds(325, 28, 44, 28);
 		}
 		return label_13;
 	}
+
 	private JLabel getLblBell() {
 		if (lblBell == null) {
 			lblBell = new JLabel("");
 			lblBell.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mousePressed(MouseEvent e) {
-					new IncidenceController(Session.workingPlan.incidence).setDescription(Integer.toString(Session.workingPlan.getID()));
-					new IncidenceController(Session.workingPlan.incidence).setSolved(true);
+					CursorMode.wait(lblBell);
+					Session.workingPlan.incidence = new IncidenceController(Session.workingPlan.incidence)
+							.setDescription(Integer.toString(Session.workingPlan.getID()));
+
+					if (Session.workingPlan.incidence.isSolve())
+						new IncidenceController(new WorkingPlanController(Session.workingPlan)).setSolved(false);
+					else
+						new IncidenceController(new WorkingPlanController(Session.workingPlan)).setSolved(true);
+
+					updateIncidenceIcon(Session.workingPlan.incidence);
+					CursorMode.normal(lblBell);
 				}
 			});
 			lblBell.setHorizontalAlignment(SwingConstants.CENTER);
@@ -1985,5 +2000,25 @@ public class WarehouseAPP extends JFrame {
 			lblBell.setBounds(308, 6, 61, 61);
 		}
 		return lblBell;
+	}
+
+	public void updateIncidenceIcon(Incidence incidence) {
+		Session.workingPlan.incidence = incidence;
+		if (incidence == null) {
+			getLblBell()
+					.setIcon(new ImageIcon(WarehouseAPP.class.getResource("/com/myshop2/ui/icons/bell_normal.png")));
+			getBtnRecoger().setEnabled(true);
+		} else {
+			if (incidence.isSolve()) {
+				getLblBell().setIcon(
+						new ImageIcon(WarehouseAPP.class.getResource("/com/myshop2/ui/icons/bell_normal.png")));
+				getBtnRecoger().setEnabled(true);
+			} else {
+				getLblBell().setIcon(
+						new ImageIcon(WarehouseAPP.class.getResource("/com/myshop2/ui/icons/bell_selected.png")));
+				getBtnRecoger().setEnabled(false);
+			}
+
+		}
 	}
 }

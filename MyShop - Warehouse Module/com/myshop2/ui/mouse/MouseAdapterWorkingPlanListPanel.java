@@ -45,6 +45,7 @@ public static MouseAdapter getFromTable(JTable table, WarehouseAPP app) {
 				WorkingPlanController wpc = ((DefaultNonEditableTableModel<WorkingPlanController>) table.getModel()).getObjectAtRow(table.getSelectedRow());
 				((JScrollPane) app.getScPaneOTIndiv()).setViewportView(LoadDetallesWorkingPlan.loadFromTable(wpc, app.getScPaneOTIndiv().getWidth()));
 				LoadDetallesWorkingPlan.updateTable(wpc);
+				app.updateIncidenceIcon(wpc.getWp().incidence);
 				app.getIdPedidoOTIndv().setText(Integer.toString(wpc.getWp().getID()));
 				SimpleDateFormat sf = new SimpleDateFormat("MMM. dd, yyyy hh:mm a");
 				app.getFechaOTIndv().setText(sf.format(new Date()));

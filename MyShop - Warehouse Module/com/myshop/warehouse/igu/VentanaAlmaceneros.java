@@ -963,7 +963,7 @@ public class VentanaAlmaceneros extends JFrame {
 	private JTextPane getTxtIncidencia() {
 		if (txtIncidencia == null) {
 			txtIncidencia = new JTextPane();
-			txtIncidencia.addFocusListener(new FocusAdapter() {
+			/*txtIncidencia.addFocusListener(new FocusAdapter() {
 
 				@Override
 				public void focusLost(FocusEvent e) {
@@ -971,7 +971,7 @@ public class VentanaAlmaceneros extends JFrame {
 							.getObjectAtRow(getTbOrdenTrabajoIndividual().getSelectedRow()).getWPI().getOrderItem())
 									.setDescription(txtIncidencia.getText());
 				}
-			});
+			});*/
 			txtIncidencia.setFont(new Font("Lucida Grande", Font.PLAIN, 9));
 			txtIncidencia.setText(
 					"Texto de demostración sobre una incicencia que perfectamente puede ocurrir con cualquier producto.");
@@ -982,13 +982,13 @@ public class VentanaAlmaceneros extends JFrame {
 	private JCheckBox getChckbxSolucionada() {
 		if (chckbxSolucionada == null) {
 			chckbxSolucionada = new JCheckBox("Solucionada");
-			chckbxSolucionada.addActionListener(new ActionListener() {
+			/*chckbxSolucionada.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					new IncidenceController(modeloTablaOrdenTrabajoIndividual
 							.getObjectAtRow(getTbOrdenTrabajoIndividual().getSelectedRow()).getWPI().getOrderItem())
 									.setSolved(chckbxSolucionada.isSelected());
 				}
-			});
+			});*/
 			chckbxSolucionada.setFont(new Font("Lucida Grande", Font.PLAIN, 9));
 			chckbxSolucionada.setBounds(208, 15, 106, 23);
 		}
