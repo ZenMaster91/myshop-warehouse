@@ -10,6 +10,7 @@ import javax.swing.border.EmptyBorder;
 
 import com.myshop.model.order.MailBox;
 import com.myshop.model.order.OrderItem;
+import com.myshop.warehouse.controllers.IncidenceController;
 import com.myshop.warehouse.controllers.MailBoxController;
 import com.myshop.warehouse.controllers.OrderController;
 import com.myshop.warehouse.controllers.ShipmentController;
@@ -516,6 +517,7 @@ public class WarehouseAPP extends JFrame {
 		if (lblGenerarOt == null) {
 			lblGenerarOt = new JLabel("Generar O.T");
 			lblGenerarOt.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+			WarehouseAPP app = this;
 			lblGenerarOt.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mousePressed(MouseEvent e) {
@@ -524,6 +526,7 @@ public class WarehouseAPP extends JFrame {
 						GenerateWorkingPlan.generateAndAssign(Session.almacenero, Session.order, Session.orders);
 						((CardLayout) getContentPane().getLayout()).show(getContentPane(), "vistaOTs");
 						CursorMode.normal(lblGenerarOt);
+						otsLoader.updateTable(Session.getWorkingPlans(Session.almacenero), app);
 					}
 					
 				}
@@ -1973,9 +1976,8 @@ public class WarehouseAPP extends JFrame {
 			lblBell.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mousePressed(MouseEvent e) {
-					if(Session.workingPlan.incidence == null) {
-						
-					}
+					new IncidenceController(Session.workingPlan.incidence).setDescription(Integer.toString(Session.workingPlan.getID()));
+					new IncidenceController(Session.workingPlan.incidence).setSolved(true);
 				}
 			});
 			lblBell.setHorizontalAlignment(SwingConstants.CENTER);
